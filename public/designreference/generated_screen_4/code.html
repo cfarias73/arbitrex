@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Arbitrex - Dashboard de Estadísticas</title>
+<!-- Google Fonts: Space Grotesk -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#895af6',
+            darkBg: '#0f0f12',
+            cardBg: '#1a1a20',
+          },
+          fontFamily: {
+            sans: ['Space Grotesk', 'sans-serif'],
+          },
+          borderRadius: {
+            'custom': '12px',
+          },
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-animations">
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 5px rgba(137, 90, 246, 0.2); }
+      50% { box-shadow: 0 0 20px rgba(137, 90, 246, 0.6); }
+    }
+    .today-bar-glow {
+      animation: glow 2s infinite ease-in-out;
+    }
+    .locked-overlay {
+      background: rgba(15, 15, 18, 0.7);
+      backdrop-filter: blur(2px);
+    }
+  </style>
+</head>
+<body class="bg-darkBg text-gray-100 font-sans min-h-screen pb-24">
+<!-- BEGIN: Header -->
+<header class="p-6 flex justify-between items-center" data-purpose="header-section">
+<div>
+<h1 class="text-2xl font-bold tracking-tight">Estadísticas</h1>
+<p class="text-gray-400 text-sm">Análisis de ineficiencias</p>
+</div>
+<div class="w-10 h-10 rounded-custom bg-primary/20 flex items-center justify-center border border-primary/30">
+<svg class="h-6 w-6 text-primary" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+</header>
+<!-- END: Header -->
+<!-- BEGIN: Period Selector -->
+<section class="px-6 mb-6" data-purpose="period-selector">
+<div class="flex bg-cardBg p-1 rounded-custom gap-1">
+<button class="flex-1 py-2 text-sm font-medium bg-primary text-white rounded-custom transition-all">7d</button>
+<button class="flex-1 py-2 text-sm font-medium text-gray-500 flex items-center justify-center gap-1 relative">
+        30d
+        <svg class="h-3 w-3" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" fill-rule="evenodd"></path>
+</svg>
+<span class="absolute -top-1 -right-1 text-[8px] bg-amber-500 text-black px-1 rounded-full font-bold">PRO</span>
+</button>
+<button class="flex-1 py-2 text-sm font-medium text-gray-500 flex items-center justify-center gap-1 relative">
+        Todo
+        <svg class="h-3 w-3" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" fill-rule="evenodd"></path>
+</svg>
+</button>
+</div>
+</section>
+<!-- END: Period Selector -->
+<main class="px-6 space-y-6">
+<!-- BEGIN: Metric Cards -->
+<section class="grid grid-cols-3 gap-3" data-purpose="metrics-row">
+<!-- Total Card -->
+<div class="bg-cardBg p-3 rounded-custom border border-white/5">
+<p class="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Total (7d)</p>
+<p class="text-xl font-bold text-white">142</p>
+</div>
+<!-- Magnitude Card -->
+<div class="bg-cardBg p-3 rounded-custom border border-white/5">
+<p class="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Mag. Prom.</p>
+<p class="text-xl font-bold text-primary">4.2<span class="text-xs ml-0.5">pts</span></p>
+</div>
+<!-- Closing Card -->
+<div class="bg-cardBg p-3 rounded-custom border border-white/5">
+<p class="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Cierre</p>
+<p class="text-xl font-bold text-white">12<span class="text-xs ml-0.5 font-normal text-gray-400">m</span></p>
+</div>
+</section>
+<!-- END: Metric Cards -->
+<!-- BEGIN: Main Chart -->
+<section class="bg-cardBg p-6 rounded-custom border border-white/5" data-purpose="chart-container">
+<div class="flex justify-between items-end h-48 gap-3">
+<!-- Mon -->
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+<div class="w-full bg-primary/20 rounded-t-sm" style="height: 40%"></div>
+<span class="text-[10px] text-gray-500">L</span>
+</div>
+<!-- Tue -->
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+<div class="w-full bg-primary/40 rounded-t-sm" style="height: 65%"></div>
+<span class="text-[10px] text-gray-500">M</span>
+</div>
+<!-- Wed -->
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+<div class="w-full bg-primary/30 rounded-t-sm" style="height: 55%"></div>
+<span class="text-[10px] text-gray-500">X</span>
+</div>
+<!-- Thu -->
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+<div class="w-full bg-primary/50 rounded-t-sm" style="height: 80%"></div>
+<span class="text-[10px] text-gray-500">J</span>
+</div>
+<!-- Fri -->
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+<div class="w-full bg-primary/40 rounded-t-sm" style="height: 60%"></div>
+<span class="text-[10px] text-gray-500">V</span>
+</div>
+<!-- Sat -->
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+<div class="w-full bg-primary/60 rounded-t-sm" style="height: 70%"></div>
+<span class="text-[10px] text-gray-500">S</span>
+</div>
+<!-- Today (Glow) -->
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+<div class="w-full bg-primary rounded-t-sm today-bar-glow relative overflow-hidden" style="height: 95%">
+<div class="absolute inset-0 bg-gradient-to-t from-transparent to-white/20"></div>
+</div>
+<span class="text-[10px] text-primary font-bold">D</span>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-white/5 flex justify-between items-center">
+<span class="text-xs text-gray-400">Volumen semanal</span>
+<span class="text-xs font-bold text-green-400">+12% vs anterior</span>
+</div>
+</section>
+<!-- END: Main Chart -->
+<!-- BEGIN: Ranking Section -->
+<section class="space-y-4" data-purpose="ranking-section">
+<h3 class="text-sm font-semibold text-gray-400 uppercase tracking-widest px-1">Top Categorías</h3>
+<div class="bg-cardBg p-5 rounded-custom border border-white/5 space-y-5">
+<!-- Politics -->
+<div class="space-y-2">
+<div class="flex justify-between text-sm">
+<span>Política</span>
+<span class="font-bold">64</span>
+</div>
+<div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 85%"></div>
+</div>
+</div>
+<!-- Tech -->
+<div class="space-y-2">
+<div class="flex justify-between text-sm">
+<span>Tecnología</span>
+<span class="font-bold">48</span>
+</div>
+<div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+<div class="bg-primary/70 h-full rounded-full" style="width: 65%"></div>
+</div>
+</div>
+<!-- Sports -->
+<div class="space-y-2">
+<div class="flex justify-between text-sm">
+<span>Deportes</span>
+<span class="font-bold">30</span>
+</div>
+<div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+<div class="bg-primary/40 h-full rounded-full" style="width: 40%"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- END: Ranking Section -->
+</main>
+<!-- BEGIN: Bottom Nav -->
+<nav class="fixed bottom-0 left-0 right-0 bg-darkBg/80 backdrop-blur-lg border-t border-white/5 px-8 py-4 flex justify-between items-center z-50" data-purpose="bottom-navigation">
+<button class="text-gray-500">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+<button class="text-primary relative">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full"></div>
+</button>
+<button class="text-gray-500">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+<button class="text-gray-500">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</nav>
+<!-- END: Bottom Nav -->
+</body></html>

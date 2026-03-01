@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Arbitrex - Registro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;family=Syne:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#8B5CF6",
+                        "secondary": "#6B4FBB",
+                        "accent": "#bd8dce",
+                        "background-light": "#07050F",
+                        "background-dark": "#07050F",
+                    },
+                    fontFamily: {
+                        "display": ["Syne", "sans-serif"],
+                        "body": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #07050F;
+            font-family: 'Public Sans', sans-serif;
+        }
+        .header-font {
+            font-family: 'Syne', sans-serif;
+        }
+        .label-font {
+            font-family: 'DM Mono', monospace;
+        }
+        .glass-card {
+            background: rgba(28, 21, 64, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        .neon-glow {
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen flex flex-col">
+<div class="relative flex min-h-screen w-full flex-col items-center justify-center overflow-x-hidden p-4 md:p-8">
+<!-- Background Accents -->
+<div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px]"></div>
+<div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/20 rounded-full blur-[120px]"></div>
+<!-- Main Card Container -->
+<div class="glass-card w-full max-w-[480px] rounded-xl p-8 shadow-2xl relative z-10">
+<!-- Header Section -->
+<div class="flex items-center justify-between mb-8">
+<div class="flex items-center gap-2">
+<div class="bg-gradient-to-br from-primary to-secondary p-2 rounded-lg">
+<span class="material-symbols-outlined text-white text-2xl">account_balance_wallet</span>
+</div>
+<span class="header-font text-white text-2xl font-bold tracking-tight">Arbitrex</span>
+</div>
+<a class="text-accent hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">help_outline</span>
+</a>
+</div>
+<div class="mb-8">
+<h1 class="header-font text-white text-4xl font-extrabold mb-2 header-font font-extrabold uppercase tracking-tight">Únete ahora</h1>
+<p class="text-sm text-[#A89EC9]">Empieza tu viaje con precisión de color púrpura profundo.</p>
+</div>
+<!-- Form Section -->
+<form class="space-y-5">
+<!-- Name Field -->
+<div class="flex flex-col gap-2">
+<label class="text-sm font-medium px-1 label-font text-[#A89EC9]">Nombre Completo</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-accent text-xl">person</span>
+<input class="w-full bg-[#130d2e] border border-primary/30 rounded-xl py-4 pl-12 pr-4 text-white placeholder:text-[#A89EC9]/40 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all" placeholder="Ej. Juan Pérez" type="text"/>
+</div>
+</div>
+<!-- Email Field -->
+<div class="flex flex-col gap-2">
+<label class="text-sm font-medium px-1 label-font text-[#A89EC9]">Correo Electrónico</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-accent text-xl">mail</span>
+<input class="w-full bg-[#130d2e] border border-primary/30 rounded-xl py-4 pl-12 pr-4 text-white placeholder:text-[#A89EC9]/40 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all" placeholder="tu@email.com" type="email"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="flex flex-col gap-2">
+<label class="text-sm font-medium px-1 label-font text-[#A89EC9]">Contraseña</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-accent text-xl">lock</span>
+<input class="w-full bg-[#130d2e] border border-primary/30 rounded-xl py-4 pl-12 pr-4 text-white placeholder:text-[#A89EC9]/40 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all" placeholder="••••••••" type="password"/>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 cursor-pointer hover:text-white transition-colors">visibility</span>
+</div>
+</div>
+<!-- Confirm Password Field -->
+<div class="flex flex-col gap-2">
+<label class="text-sm font-medium px-1 label-font text-[#A89EC9]">Confirmar Contraseña</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-accent text-xl">lock_reset</span>
+<input class="w-full bg-[#130d2e] border border-primary/30 rounded-xl py-4 pl-12 pr-4 text-white placeholder:text-[#A89EC9]/40 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all" placeholder="••••••••" type="password"/>
+</div>
+</div>
+<!-- Submit Button -->
+<button class="w-full bg-gradient-to-r from-[#8B5CF6] to-[#6B4FBB] text-white font-bold py-4 rounded-xl mt-4 hover:opacity-90 transition-all shadow-lg neon-glow flex items-center justify-center gap-2" type="submit">
+                    Crear cuenta
+                    <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</form>
+<!-- Bottom Navigation -->
+<div class="mt-8 text-center">
+<p class="text-sm text-[#A89EC9]">Empieza tu viaje con precisión de color púrpura profundo.</p>
+</div>
+</div>
+<!-- Footer Text / Terms -->
+<div class="mt-8 text-xs text-center max-w-[400px] text-[#A89EC9]">
+            Al registrarte, aceptas nuestros Términos de Servicio y Política de Privacidad. Protegemos tus datos con encriptación de grado bancario.
+        </div>
+</div>
+<!-- Bottom Nav Bar Mobile (Example Component modified) -->
+<div class="fixed bottom-0 left-0 right-0 flex gap-2 border-t border-primary/20 bg-[#1a0b25]/80 backdrop-blur-md px-4 pb-3 pt-2 md:hidden">
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-accent" href="#">
+<span class="material-symbols-outlined">home</span>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-accent" href="#">
+<span class="material-symbols-outlined">pie_chart</span>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-accent" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-white" href="#">
+<span class="material-symbols-outlined">person</span>
+</a>
+</div>
+</body></html>

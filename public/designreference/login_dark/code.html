@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Arbitrex - Iniciar Sesión</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;family=Syne:wght@700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#8B5CF6",
+                        "primary-dark": "#6B4FBB",
+                        "background-light": "#07050F",
+                        "background-dark": "#07050F",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"],
+                        "syne": ["Syne", "sans-serif"],
+                        "grotesk": ["Public Sans", "sans-serif"] 
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: #1C1540;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid #2E2460;
+        }
+        .neon-glow {
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="font-display bg-[#07050F] text-slate-100 min-h-screen flex flex-col">
+<!-- Header / Logo Area -->
+<div class="flex items-center bg-transparent p-6 justify-between w-full max-w-md mx-auto">
+<div class="text-primary flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
+<span class="material-symbols-outlined">shield</span>
+</div>
+<h2 class="text-white text-xl font-bold font-syne tracking-tight flex-1 text-center pr-10 uppercase">Arbitrex</h2>
+</div>
+<!-- Main Login Container -->
+<main class="flex-1 flex items-center justify-center p-4">
+<div class="glass-card w-full max-w-[420px] rounded-xl p-8 shadow-2xl relative overflow-hidden">
+<!-- Decorative gradient blur -->
+<div class="absolute -top-24 -right-24 w-48 h-48 bg-primary/20 rounded-full blur-3xl"></div>
+<div class="absolute -bottom-24 -left-24 w-48 h-48 bg-primary-dark/20 rounded-full blur-3xl"></div>
+<div class="relative z-10">
+<h1 class="text-white text-4xl font-syne font-bold leading-tight mb-2 text-center">Bienvenido</h1>
+<p class="text-slate-400 text-center mb-8 font-grotesk">Ingresa a tu cuenta institucional</p>
+<form class="space-y-5">
+<!-- Email Field -->
+<div class="flex flex-col gap-2">
+<label class="text-slate-300 text-sm font-medium font-grotesk ml-1">Email</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-[20px]">mail</span>
+<input class="w-full border rounded-xl py-3.5 pl-12 pr-4 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all font-grotesk" placeholder="tu@email.com" style="background-color: #1C1540; border-color: #2E2460;" type="email"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="flex flex-col gap-2">
+<label class="text-slate-300 text-sm font-medium font-grotesk ml-1">Contraseña</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-[20px]">lock</span>
+<input class="w-full border rounded-xl py-3.5 pl-12 pr-12 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all font-grotesk" placeholder="••••••••" style="background-color: #1C1540; border-color: #2E2460;" type="password"/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-primary transition-colors font-grotesk" type="button">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+</div>
+<!-- Forgot Password -->
+<div class="flex justify-end">
+<a class="text-primary text-xs font-medium hover:text-white transition-colors font-grotesk" href="#">¿Olvidaste tu contraseña?</a>
+</div>
+<!-- Login Button -->
+<button class="w-full bg-gradient-to-r from-primary to-primary-dark text-white font-bold py-4 rounded-xl neon-glow hover:opacity-90 active:scale-[0.98] transition-all font-grotesk shadow-lg" type="submit">
+                        Iniciar Sesión
+                    </button>
+</form>
+<!-- Footer Links -->
+<div class="mt-8 text-center">
+<p class="text-slate-400 text-sm font-grotesk">
+                        ¿No tienes una cuenta? 
+                        <a class="text-primary font-bold hover:underline ml-1 font-grotesk" href="#">Crear cuenta</a>
+</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Navigation Bar -->
+<nav class="w-full max-w-md mx-auto px-4 pb-6 pt-2">
+<div class="flex gap-2 border border-primary/10 bg-slate-900/40 backdrop-blur-md rounded-full px-6 py-3">
+<a class="flex flex-1 flex-col items-center justify-center gap-1 font-grotesk" href="#" style="color: #A78BFA;">
+<span class="material-symbols-outlined text-[24px]">home</span>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 hover:text-primary transition-colors font-grotesk" href="#" style="color: #5E5380;">
+<span class="material-symbols-outlined text-[24px]">security</span>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 hover:text-primary transition-colors font-grotesk" href="#" style="color: #5E5380;">
+<span class="material-symbols-outlined text-[24px]">person</span>
+</a>
+</div>
+</nav>
+<!-- Background Decoration Images -->
+<div class="fixed inset-0 -z-10 pointer-events-none opacity-20">
+<div class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,_#1c1540_0%,_#07050F_100%)]"></div>
+</div>
+</body></html>

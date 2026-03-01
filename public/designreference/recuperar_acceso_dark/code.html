@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Recuperar Acceso - Arbitrex</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&amp;family=Syne:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#8B5CF6",
+                        "surface": "#1C1540",
+                        "background-dark": "#07050F",
+                        "text-main": "#F0EEFF"
+                    },
+                    fontFamily: {
+                        "syne": ["Syne", "sans-serif"],
+                        "cabinet": ["Public Sans", "sans-serif"], /* Cabinet Grotesk fallback */
+                        "mono": ["DM Mono", "monospace"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(28, 21, 64, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        .btn-gradient {
+            background: linear-gradient(135deg, #8B5CF6 0%, #6B4FBB 100%);
+        }
+        body {
+            background-color: #07050F !important;
+            color: #F0EEFF;
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+<style>
+        .glass-card {
+            background: rgba(28, 21, 64, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        .btn-gradient {
+            background: linear-gradient(135deg, #8B5CF6 0%, #6B4FBB 100%);
+        }
+        body {
+            background-color: #07050F !important;
+            color: #F0EEFF;
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="bg-background-dark font-cabinet min-h-screen flex flex-col items-center justify-center p-4 text-text-main">
+<div class="w-full max-w-[440px] flex flex-col gap-8">
+<!-- Top App Bar / Navigation -->
+<div class="flex items-center gap-4 group cursor-pointer w-fit">
+<div class="text-primary flex items-center justify-center rounded-full bg-primary/10 p-2 transition-colors group-hover:bg-primary/20 bg-primary/20">
+<span class="material-symbols-outlined text-2xl">arrow_back</span>
+</div>
+<span class="text-text-main font-medium font-cabinet">Volver</span>
+</div>
+<!-- Glassmorphism Container -->
+<div class="glass-card rounded-xl p-8 shadow-2xl relative overflow-hidden">
+<!-- Decorative Accent -->
+<div class="absolute -top-24 -right-24 w-48 h-48 bg-primary/10 rounded-full blur-3xl"></div>
+<div class="relative z-10">
+<h1 class="font-syne text-4xl font-bold text-text-main tracking-tight mb-3">
+                    Recuperar Acceso
+                </h1>
+<p class="font-cabinet text-text-main/70 text-base leading-relaxed mb-8">
+                    Ingresa tu correo electrónico asociado a tu cuenta de Arbitrex para recibir las instrucciones de recuperación.
+                </p>
+<form class="flex flex-col gap-6">
+<div class="flex flex-col gap-2">
+<label class="text-text-main/80 text-xs font-mono uppercase tracking-wider flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">mail</span>
+                            Correo electrónico
+                        </label>
+<input class="form-input w-full rounded-xl border-primary/20 bg-white/5 text-text-main focus:ring-2 focus:ring-primary focus:border-primary px-4 py-4 text-base transition-all placeholder:text-text-main/30" placeholder="ejemplo@arbitrex.com" required="" type="email"/>
+</div>
+<button class="w-full btn-gradient text-white font-syne font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2 uppercase tracking-wide" type="submit">
+<span>Enviar Instrucciones</span>
+<span class="material-symbols-outlined text-xl">send</span>
+</button>
+</form>
+<div class="mt-10 flex flex-col items-center gap-4 border-t border-slate-200 dark:border-primary/10 pt-8">
+<p class="text-text-main/50 text-sm font-cabinet">¿Recordaste tu contraseña?</p>
+<a class="text-primary font-bold font-syne hover:underline underline-offset-4 flex items-center gap-1" href="#">
+                        Iniciar Sesión
+                    </a>
+</div>
+</div>
+</div>
+<!-- Logo/Branding Footer -->
+<div class="flex justify-center items-center gap-2 opacity-80 hover:opacity-100 transition-all duration-500">
+<div class="bg-primary p-1.5 rounded-lg">
+<span class="material-symbols-outlined text-white text-xl font-bold">account_balance_wallet</span>
+</div>
+<span class="font-syne text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100 uppercase">Arbitrex</span>
+</div>
+</div>
+<!-- Background Decorative Elements -->
+<div class="fixed bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-primary/10 to-transparent -z-10 pointer-events-none"></div>
+<div class="fixed top-0 right-0 p-12 -z-10 opacity-20 hidden lg:block">
+<img class="w-64 h-64 object-cover rounded-full blur-2xl" data-alt="Abstract orange geometric pattern with glass circles" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQQBa_iyrYb79-O2iGC81vkAjkbmK5zAYKq6kX3R-ud9dgLy2Oim0Ffo2Y7_qnWJnVqz1OSku_mNnMM4nIFS7iDg1-aKVEES692wD2UIhgYSA8ZpXqo2qrRDsMrW1I1-PT5CDuWUGLkEYy29I4cBnxdLjWGZJelXoN-ZsRiZS9FI3h2OM5Ukh4eufKagp1yuVga9L-itg5Y1zCj0ug10rAZlrwCM3nV2xBJeT_veG1v2AHvNlT7U9Efn80GWzps-CLl55GjlDpkPs"/>
+</div>
+</body></html>

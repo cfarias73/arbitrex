@@ -1,0 +1,91 @@
+Launching lib/main.dart on macOS in debug mode...
+Building macOS application...                                   
+ld: warning: ignoring duplicate libraries: '-lsqlite3', '-lz'
+/Users/user1/Desktop/ProyectosPWA/arbitrex/macos/Pods/Pods.xcodeproj: warning: The macOS deployment target 'MACOSX_DEPLOYMENT_TARGET' is set to 10.11, but the range of supported deployment target versions is 10.13 to 15.2.99. (in target 'PromisesObjC' from project 'Pods')
+/Users/user1/Desktop/ProyectosPWA/arbitrex/macos/Pods/Pods.xcodeproj: warning: The macOS deployment target 'MACOSX_DEPLOYMENT_TARGET' is set to 10.11, but the range of supported deployment target versions is 10.13 to 15.2.99. (in target 'PromisesObjC-FBLPromises_Privacy' from project 'Pods')
+/Users/user1/Desktop/ProyectosPWA/arbitrex/macos/Pods/Pods.xcodeproj: warning: The macOS deployment target 'MACOSX_DEPLOYMENT_TARGET' is set to 10.12, but the range of supported deployment target versions is 10.13 to 15.2.99. (in target 'GoogleUtilities-GoogleUtilities_Privacy' from project 'Pods')
+/Users/user1/Desktop/ProyectosPWA/arbitrex/macos/Pods/Pods.xcodeproj: warning: The macOS deployment target 'MACOSX_DEPLOYMENT_TARGET' is set to 10.12, but the range of supported deployment target versions is 10.13 to 15.2.99. (in target 'GoogleUtilities' from project 'Pods')
+/Users/user1/Desktop/ProyectosPWA/arbitrex/macos/Pods/Pods.xcodeproj: warning: The macOS deployment target 'MACOSX_DEPLOYMENT_TARGET' is set to 10.11, but the range of supported deployment target versions is 10.13 to 15.2.99. (in target 'nanopb-nanopb_Privacy' from project 'Pods')
+/Users/user1/Desktop/ProyectosPWA/arbitrex/macos/Pods/Pods.xcodeproj: warning: The macOS deployment target 'MACOSX_DEPLOYMENT_TARGET' is set to 10.11, but the range of supported deployment target versions is 10.13 to 15.2.99. (in target 'nanopb' from project 'Pods')
+/Users/user1/Desktop/ProyectosPWA/arbitrex/macos/Pods/Pods.xcodeproj: warning: The macOS deployment target 'MACOSX_DEPLOYMENT_TARGET' is set to 10.12, but the range of supported deployment target versions is 10.13 to 15.2.99. (in target 'GoogleDataTransport' from project 'Pods')
+/Users/user1/Desktop/ProyectosPWA/arbitrex/macos/Pods/Pods.xcodeproj: warning: The macOS deployment target 'MACOSX_DEPLOYMENT_TARGET' is set to 10.12, but the range of supported deployment target versions is 10.13 to 15.2.99. (in target 'GoogleDataTransport-GoogleDataTransport_Privacy' from project 'Pods')
+✓ Built build/macos/Build/Products/Debug/arbitrex.app
+2026-02-28 20:27:35.690 arbitrex[30540:3752787] Running with merged UI and platform thread. Experimental.
+Failed to foreground app; open returned 1
+Syncing files to device macOS...                                 1,006ms
+
+Flutter run key commands.
+r Hot reload. 🔥🔥🔥
+R Hot restart.
+h List all available interactive commands.
+d Detach (terminate "flutter run" but leave application running).
+c Clear the screen
+q Quit (terminate the application on the device).
+
+A Dart VM Service on macOS is available at: http://127.0.0.1:53417/CjTgE909gvI=/
+The Flutter DevTools debugger and profiler on macOS is available at: http://127.0.0.1:53417/CjTgE909gvI=/devtools/?uri=ws://127.0.0.1:53417/CjTgE909gvI=/ws
+flutter: supabase.supabase_flutter: INFO: ***** Supabase init completed ***** 
+flutter: Firebase init warning: [core/not-initialized] Firebase has not been correctly initialized.
+flutter: 
+flutter: Usually this means you've attempted to use a Firebase service before calling `Firebase.initializeApp`.
+flutter: 
+flutter: View the documentation for more information: https://firebase.google.com/docs/flutter/setup
+flutter:     
+flutter: Error: google_fonts was unable to load font SpaceGrotesk-Bold because the following exception occurred:
+flutter: Exception: Failed to load font with url https://fonts.gstatic.com/s/a/22eb3cc87edf0bd73cd7b79336429dd0035eaf2c9a9fe83c6c7e11b825116926.ttf: ClientException with SocketException: Connection failed (OS Error: Operation not permitted, errno = 1), address = fonts.gstatic.com, port = 443, uri=https://fonts.gstatic.com/s/a/22eb3cc87edf0bd73cd7b79336429dd0035eaf2c9a9fe83c6c7e11b825116926.ttf
+flutter: 
+flutter: See https://docs.flutter.dev/development/data-and-backend/networking#platform-notes.
+flutter: If troubleshooting doesn't solve the problem, please file an issue at https://github.com/flutter/flutter/issues/new/choose.
+flutter: 
+flutter: Error: google_fonts was unable to load font SpaceGrotesk-Medium because the following exception occurred:
+flutter: Exception: Failed to load font with url https://fonts.gstatic.com/s/a/b997a6d2ee768c870c6d3e525a1ac21fd18402485181cc69de5b098341a1f47c.ttf: ClientException with SocketException: Connection failed (OS Error: Operation not permitted, errno = 1), address = fonts.gstatic.com, port = 443, uri=https://fonts.gstatic.com/s/a/b997a6d2ee768c870c6d3e525a1ac21fd18402485181cc69de5b098341a1f47c.ttf
+flutter: 
+flutter: See https://docs.flutter.dev/development/data-and-backend/networking#platform-notes.
+flutter: If troubleshooting doesn't solve the problem, please file an issue at https://github.com/flutter/flutter/issues/new/choose.
+flutter: 
+flutter: Error: google_fonts was unable to load font SpaceGrotesk-Regular because the following exception occurred:
+flutter: Exception: Failed to load font with url https://fonts.gstatic.com/s/a/7821207a715952786271398700a0ffaf2dcad829090ab5bca09b9cab112fa8eb.ttf: ClientException with SocketException: Connection failed (OS Error: Operation not permitted, errno = 1), address = fonts.gstatic.com, port = 443, uri=https://fonts.gstatic.com/s/a/7821207a715952786271398700a0ffaf2dcad829090ab5bca09b9cab112fa8eb.ttf
+flutter: 
+flutter: See https://docs.flutter.dev/development/data-and-backend/networking#platform-notes.
+flutter: If troubleshooting doesn't solve the problem, please file an issue at https://github.com/flutter/flutter/issues/new/choose.
+flutter: 
+flutter: Error: google_fonts was unable to load font SpaceGrotesk-SemiBold because the following exception occurred:
+flutter: Exception: Failed to load font with url https://fonts.gstatic.com/s/a/dc709777ca632c127616b1350e7d30103b0e897fd3d86741fa4344233315b32c.ttf: ClientException with SocketException: Connection failed (OS Error: Operation not permitted, errno = 1), address = fonts.gstatic.com, port = 443, uri=https://fonts.gstatic.com/s/a/dc709777ca632c127616b1350e7d30103b0e897fd3d86741fa4344233315b32c.ttf
+flutter: 
+flutter: See https://docs.flutter.dev/development/data-and-backend/networking#platform-notes.
+flutter: If troubleshooting doesn't solve the problem, please file an issue at https://github.com/flutter/flutter/issues/new/choose.
+flutter: 
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: Exception: Failed to load font with url https://fonts.gstatic.com/s/a/22eb3cc87edf0bd73cd7b79336429dd0035eaf2c9a9fe83c6c7e11b825116926.ttf: ClientException with SocketException: Connection failed (OS Error: Operation not permitted, errno = 1), address = fonts.gstatic.com, port = 443, uri=https://fonts.gstatic.com/s/a/22eb3cc87edf0bd73cd7b79336429dd0035eaf2c9a9fe83c6c7e11b825116926.ttf
+#0      _httpFetchFontAndSaveToDevice (package:google_fonts/src/google_fonts_base.dart:266:5)
+<asynchronous suspension>
+#1      loadFontIfNecessary (package:google_fonts/src/google_fonts_base.dart:173:11)
+<asynchronous suspension>
+#2      googleFontsTextStyle.<anonymous closure> (package:google_fonts/src/google_fonts_base.dart:110:22)
+<asynchronous suspension>
+
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: Exception: Failed to load font with url https://fonts.gstatic.com/s/a/b997a6d2ee768c870c6d3e525a1ac21fd18402485181cc69de5b098341a1f47c.ttf: ClientException with SocketException: Connection failed (OS Error: Operation not permitted, errno = 1), address = fonts.gstatic.com, port = 443, uri=https://fonts.gstatic.com/s/a/b997a6d2ee768c870c6d3e525a1ac21fd18402485181cc69de5b098341a1f47c.ttf
+#0      _httpFetchFontAndSaveToDevice (package:google_fonts/src/google_fonts_base.dart:266:5)
+<asynchronous suspension>
+#1      loadFontIfNecessary (package:google_fonts/src/google_fonts_base.dart:173:11)
+<asynchronous suspension>
+#2      googleFontsTextStyle.<anonymous closure> (package:google_fonts/src/google_fonts_base.dart:110:22)
+<asynchronous suspension>
+
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: Exception: Failed to load font with url https://fonts.gstatic.com/s/a/7821207a715952786271398700a0ffaf2dcad829090ab5bca09b9cab112fa8eb.ttf: ClientException with SocketException: Connection failed (OS Error: Operation not permitted, errno = 1), address = fonts.gstatic.com, port = 443, uri=https://fonts.gstatic.com/s/a/7821207a715952786271398700a0ffaf2dcad829090ab5bca09b9cab112fa8eb.ttf
+#0      _httpFetchFontAndSaveToDevice (package:google_fonts/src/google_fonts_base.dart:266:5)
+<asynchronous suspension>
+#1      loadFontIfNecessary (package:google_fonts/src/google_fonts_base.dart:173:11)
+<asynchronous suspension>
+#2      googleFontsTextStyle.<anonymous closure> (package:google_fonts/src/google_fonts_base.dart:110:22)
+<asynchronous suspension>
+
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: Exception: Failed to load font with url https://fonts.gstatic.com/s/a/dc709777ca632c127616b1350e7d30103b0e897fd3d86741fa4344233315b32c.ttf: ClientException with SocketException: Connection failed (OS Error: Operation not permitted, errno = 1), address = fonts.gstatic.com, port = 443, uri=https://fonts.gstatic.com/s/a/dc709777ca632c127616b1350e7d30103b0e897fd3d86741fa4344233315b32c.ttf
+#0      _httpFetchFontAndSaveToDevice (package:google_fonts/src/google_fonts_base.dart:266:5)
+<asynchronous suspension>
+#1      loadFontIfNecessary (package:google_fonts/src/google_fonts_base.dart:173:11)
+<asynchronous suspension>
+#2      googleFontsTextStyle.<anonymous closure> (package:google_fonts/src/google_fonts_base.dart:110:22)
+<asynchronous suspension>
+
+2026-02-28 20:27:40.508 arbitrex[30540:3752787] The operation couldn’t be completed. (OSStatus error 13.)
+Lost connection to device.
