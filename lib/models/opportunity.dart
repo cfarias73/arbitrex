@@ -55,5 +55,5 @@ class Opportunity {
   }
 
   bool get isDelayed =>
-    DateTime.now().toUtc().difference(detectedAt).inMinutes < 15;
+    DateTime.now().toUtc().difference(detectedAt).inMinutes < 10;
 }

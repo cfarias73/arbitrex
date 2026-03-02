@@ -105,7 +105,9 @@ class _FeedScreenState extends State<FeedScreen> {
                             itemCount: opportunities.length,
                             itemBuilder: (context, index) {
                               final opportunity = opportunities[index];
-                              final isLocked = isFree && opportunity.isDelayed;
+                              // Plan free: bloqueamos si es muy reciente (delay) y tiene puntos altos (>=5),
+                              // permitiendo ver algunas inter/anomalies de bajo puntaje para enganchar al usuario.
+                              final isLocked = isFree && opportunity.isDelayed && opportunity.deltaPoints >= 5.0;
 
                               return AnimationConfiguration.staggeredList(
                                 position: index,

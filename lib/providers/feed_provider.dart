@@ -27,33 +27,42 @@ class FeedProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      var query = _supabase
+      final typeAQuery = _supabase
           .from('opportunities')
           .select('*, market:market_id_1(title, category, prob_yes, prob_no)')
           .eq('is_active', true)
+          .eq('type', 'type_a')
           .order('detected_at', ascending: false)
-          .limit(50);
+          .limit(30);
 
-      // Plan free: solo tipo_a y con delay temporalmente a 0 para pruebas (originalmente 15 min)
-      if (userPlan == 'free') {
-        final cutoff = DateTime.now().toUtc().subtract(const Duration(minutes: 0));
-        final data = await _supabase
-            .from('opportunities')
-            .select('*, market:market_id_1(title, category, prob_yes, prob_no)')
-            .eq('is_active', true)
-            .eq('type', 'type_a')
-            .lt('detected_at', cutoff.toIso8601String())
-            .order('detected_at', ascending: false)
-            .limit(50);
-        _opportunities = (data as List)
-            .map((e) => Opportunity.fromJson(e))
-            .toList();
-      } else {
-        final data = await query;
-        _opportunities = (data as List)
-            .map((e) => Opportunity.fromJson(e))
-            .toList();
-      }
+      final typeBQuery = _supabase
+          .from('opportunities')
+          .select('*, market:market_id_1(title, category, prob_yes, prob_no)')
+          .eq('is_active', true)
+          .eq('type', 'type_b')
+          .order('detected_at', ascending: false)
+          .limit(30);
+
+      final typeCQuery = _supabase
+          .from('opportunities')
+          .select('*, market:market_id_1(title, category, prob_yes, prob_no)')
+          .eq('is_active', true)
+          .eq('type', 'type_c')
+          .order('detected_at', ascending: false)
+          .limit(30);
+
+      final results = await Future.wait([typeAQuery, typeBQuery, typeCQuery]);
+      
+      final allData = [
+        ...results[0] as List, 
+        ...results[1] as List, 
+        ...results[2] as List
+      ];
+
+      var ops = allData.map((e) => Opportunity.fromJson(e)).toList();
+      ops.sort((a, b) => b.detectedAt.compareTo(a.detectedAt));
+      
+      _opportunities = ops;
 
     } catch (e) {
       _error = 'Error cargando oportunidades';
@@ -73,16 +82,13 @@ class FeedProvider extends ChangeNotifier {
           table: 'opportunities',
           callback: (payload) {
             final newOpp = Opportunity.fromJson(payload.newRecord);
-
-            // Respetar restricciones del plan
-            if (userPlan == 'free') {
-              if (newOpp.type != 'type_a') return;
-              // El delay de 15 min se maneja mostrando el item con gate
-            }
+            
+            // Ya no filtramos por tipo aquí, dejamos que el UI maneje el bloqueo
+            // basándose en el plan del usuario.
 
             _opportunities.insert(0, newOpp);
-            // Mantener máximo 50 items en memoria
-            if (_opportunities.length > 50) _opportunities.removeLast();
+            // Mantener máximo 100 items en memoria
+            if (_opportunities.length > 100) _opportunities.removeLast();
             notifyListeners();
           },
         )

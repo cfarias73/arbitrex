@@ -150,7 +150,7 @@ function detectTypeA_Complement(markets: any[]) {
         market_id_2: null,
         delta_points: parseFloat(delta.toFixed(2)),
         category: m.category,
-        explanation: `YES+NO = ${sum.toFixed(1)}%. Ineficiencia de ${delta.toFixed(1)}pp.`,
+        explanation: `YES+NO = ${sum.toFixed(1)}%. Inefficiency of ${delta.toFixed(1)}pp.`,
         detected_at: new Date().toISOString(),
         is_active: true,
         delta_history: []
@@ -184,7 +184,7 @@ function detectTypeA_Exhaustive(markets: any[]) {
         market_id_2: group.length > 1 ? group[1].id : null,
         delta_points: parseFloat(delta.toFixed(2)),
         category: group[0].category,
-        explanation: `${group.length} mercados del evento suman ${total.toFixed(1)}% (esperado ~100%).`,
+        explanation: `${group.length} event markets sum ${total.toFixed(1)}% (expected ~100%).`,
         detected_at: new Date().toISOString(),
         is_active: true,
         delta_history: []
@@ -227,7 +227,7 @@ function detectTypeA_Hierarchy(markets: any[]) {
               market_id_2: c.id,
               delta_points: parseFloat(delta.toFixed(2)),
               category: s.category,
-              explanation: `Parte (${(s.prob_yes * 100).toFixed(1)}%) > Todo (${(c.prob_yes * 100).toFixed(1)}%).`,
+              explanation: `Part (${(s.prob_yes * 100).toFixed(1)}%) > Whole (${(c.prob_yes * 100).toFixed(1)}%).`,
               detected_at: new Date().toISOString(),
               is_active: true,
               delta_history: []
@@ -255,7 +255,7 @@ function detectTypeB_InterPlatform(polyMarkets: any[]) {
         market_id_2: null,
         delta_points: parseFloat(delta.toFixed(2)),
         category: pm.category,
-        explanation: `Desvío inter-plataforma: ${delta.toFixed(1)}pp.`,
+        explanation: `Inter-platform deviation: ${delta.toFixed(1)}pp.`,
         detected_at: new Date().toISOString(),
         is_active: true,
         delta_history: []
@@ -280,7 +280,7 @@ function detectTypeC_Internal(markets: any[]) {
         market_id_2: null,
         delta_points: parseFloat(delta.toFixed(2)),
         category: m.category,
-        explanation: `Gap de precios: YES(${(m.prob_yes * 100).toFixed(1)}%) + NO(${(m.prob_no * 100).toFixed(1)}%) = ${(sum * 100).toFixed(1)}%.`,
+        explanation: `Price gap: YES(${(m.prob_yes * 100).toFixed(1)}%) + NO(${(m.prob_no * 100).toFixed(1)}%) = ${(sum * 100).toFixed(1)}%.`,
         detected_at: new Date().toISOString(),
         is_active: true,
         delta_history: []
