@@ -118,11 +118,8 @@ class FeedProvider extends ChangeNotifier {
   }
 
   List<Opportunity> _filtered() {
-    if (_activeFilter == 'all' || _activeFilter == 'Todos') return _opportunities;
-    if (_activeFilter == 'intra' || _activeFilter == 'Intra') return _opportunities.where((o) => o.type == 'type_a').toList();
-    if (_activeFilter == 'inter' || _activeFilter == 'Inter') return _opportunities.where((o) => o.type == 'type_b').toList();
-    if (_activeFilter == 'anomaly' || _activeFilter == 'Anomalía') return _opportunities.where((o) => o.type == 'type_c').toList();
-    if (_activeFilter == '7pts' || _activeFilter == '≥7pts') return _opportunities.where((o) => o.deltaPoints >= 7).toList();
+    if (_activeFilter == 'Free') return _opportunities.where((o) => o.deltaPoints < 3.1).toList();
+    if (_activeFilter == 'Pro') return _opportunities.where((o) => o.deltaPoints >= 3.1).toList();
     return _opportunities;
   }
 

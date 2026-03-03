@@ -34,18 +34,18 @@ void main() async {
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => FeedProvider()),
       ],
-      child: const ArbitrexApp(),
+      child: const PolyfoxApp(),
     ),
   );
 }
 
-class ArbitrexApp extends StatelessWidget {
-  const ArbitrexApp({super.key});
+class PolyfoxApp extends StatelessWidget {
+  const PolyfoxApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'Arbitrex',
+      title: 'Polyfox',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
       routerConfig: AppRouter.router,

@@ -7,11 +7,11 @@ class UserProvider extends ChangeNotifier {
   final _supabase = Supabase.instance.client;
 
   UserProfile? _profile;
-  List<ArbitrexAlert> _alerts = [];
+  List<PolyfoxAlert> _alerts = [];
   bool _isLoading = false;
 
   UserProfile? get profile => _profile;
-  List<ArbitrexAlert> get alerts => _alerts;
+  List<PolyfoxAlert> get alerts => _alerts;
   bool get isLoading => _isLoading;
   String get plan => _profile?.plan ?? 'free';
   bool get isPro => plan == 'pro' || plan == 'trader_plus';
@@ -52,14 +52,14 @@ class UserProvider extends ChangeNotifier {
           .eq('user_id', userId)
           .order('created_at', ascending: false);
 
-      _alerts = (data as List).map((e) => ArbitrexAlert.fromJson(e)).toList();
+      _alerts = (data as List).map((e) => PolyfoxAlert.fromJson(e)).toList();
       notifyListeners();
     } catch (e) {
       debugPrint('Error cargando alertas: $e');
     }
   }
 
-  Future<bool> createAlert(ArbitrexAlert alert) async {
+  Future<bool> createAlert(PolyfoxAlert alert) async {
     if (!isPro && _alerts.length >= 3) return false;
 
     final userId = _supabase.auth.currentUser?.id;

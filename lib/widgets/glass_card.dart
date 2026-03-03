@@ -24,7 +24,7 @@ class GlassCard extends StatelessWidget {
         boxShadow: hasGlow
             ? [
                 BoxShadow(
-                  color: AppColors.purpleCore.withValues(alpha: 0.15),
+                  color: AppColors.foxOrange.withValues(alpha: 0.15),
                   blurRadius: 20,
                   spreadRadius: 2,
                 )
@@ -41,7 +41,7 @@ class GlassCard extends StatelessWidget {
               color: const Color(0x991C1540), // rgba(28,21,64,0.6)
               borderRadius: BorderRadius.circular(borderRadius),
               border: Border.all(
-                color: AppColors.purpleCore.withValues(alpha: 0.25), // rgba(139,92,246,0.25)
+                color: AppColors.foxOrange.withValues(alpha: 0.25), // rgba(139,92,246,0.25)
                 width: 1.5,
               ),
             ),

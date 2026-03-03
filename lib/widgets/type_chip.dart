@@ -14,7 +14,7 @@ class TypeChip extends StatelessWidget {
 
     switch (type) {
       case 'type_a':
-        color = AppColors.purpleBright;
+        color = AppColors.foxOrangeBright;
         label = 'INTRA';
         break;
       case 'type_b':

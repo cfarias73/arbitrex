@@ -1,12 +1,12 @@
 enum UserPlan { free, pro }
 
-class ArbitrexUser {
+class PolyfoxUser {
   final String email;
   final UserPlan plan;
   final DateTime memberSince;
   final List<String> favoriteCategories;
 
-  ArbitrexUser({
+  PolyfoxUser({
     required this.email,
     this.plan = UserPlan.free,
     required this.memberSince,

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/glass_card.dart';
 import '../../widgets/primary_button.dart';
@@ -63,27 +65,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 trailing: Switch(
                   value: profile.notificationsEnabled,
                   onChanged: (v) => userProvider.updateNotificationsEnabled(v),
-                  activeTrackColor: AppColors.purpleCore.withValues(alpha: 0.3),
-                  activeThumbColor: AppColors.purpleCore,
+                  activeTrackColor: AppColors.foxOrange.withValues(alpha: 0.3),
+                  activeThumbColor: AppColors.foxOrange,
                 ),
-              ),
-              _buildSettingTile(
-                icon: CupertinoIcons.square_grid_2x2,
-                title: 'Favorite Categories',
-                subtitle: profile.favoriteCategories.isEmpty 
-                  ? 'None selected' 
-                  : profile.favoriteCategories.join(', '),
               ),
               _buildSettingTile(
                 icon: CupertinoIcons.question_circle,
                 title: 'Support',
-                onTap: () {},
+                subtitle: 'info@zoomarketingdigital.com',
+                onTap: () => launchUrl(Uri.parse('mailto:info@zoomarketingdigital.com')),
               ),
               _buildSettingTile(
-                icon: CupertinoIcons.info,
-                title: 'About Arbitrex',
-                subtitle: 'Version 1.2.0 (Phase 2)',
-                onTap: () {},
+                icon: CupertinoIcons.doc_text,
+                title: 'Privacy Policy',
+                onTap: () => launchUrl(Uri.parse('https://www.apple.com/legal/privacy/en-ww/')),
+              ),
+              _buildSettingTile(
+                icon: CupertinoIcons.shield,
+                title: 'Terms of Use (EULA)',
+                onTap: () => launchUrl(Uri.parse('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/')),
+              ),
+              const SizedBox(height: 12),
+              _buildSettingTile(
+                icon: CupertinoIcons.trash,
+                title: 'Delete Account',
+                onTap: () => _showDeleteConfirmation(context),
               ),
               const SizedBox(height: 48),
               TextButton(
@@ -125,7 +131,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          'Arbitrex Member',
+          'Polyfox Member',
           style: GoogleFonts.spaceGrotesk(fontSize: 12, color: AppColors.textMuted),
         ),
       ],
@@ -151,9 +157,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: isPro ? AppColors.purpleCore : AppColors.surface,
+                  color: isPro ? AppColors.foxOrange : AppColors.surface,
                   borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: isPro ? AppColors.purpleBright : AppColors.borderColor),
+                  border: Border.all(color: isPro ? AppColors.foxOrangeBright : AppColors.borderColor),
                 ),
                 child: Text(
                   profile.plan.toUpperCase(),
@@ -175,7 +181,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           if (!isPro)
             PrimaryButton(
               text: 'Upgrade to PRO — \$9.99/mo',
-              onPressed: () => _showUpgradeSheet(context),
+              onPressed: () => context.push('/paywall'),
               isFullWidth: true,
             )
           else
@@ -235,7 +241,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return ListTile(
       onTap: onTap,
       contentPadding: EdgeInsets.zero,
-      leading: Icon(icon, color: AppColors.purpleBright),
+      leading: Icon(icon, color: AppColors.foxOrangeBright),
       title: Text(
         title,
         style: GoogleFonts.spaceGrotesk(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 15),
@@ -250,64 +256,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _showUpgradeSheet(BuildContext context) {
-    showModalBottomSheet(
+  void _showDeleteConfirmation(BuildContext context) {
+    showCupertinoDialog(
       context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.5,
-        padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text('Delete Account'),
+        content: const Text(
+          'This action is permanent and will delete all your data. Are you sure you want to proceed?'
         ),
-        child: Column(
-          children: [
-            Text(
-              'Choose your plan',
-              style: GoogleFonts.spaceGrotesk(fontSize: 24, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
-            ),
-            const SizedBox(height: 32),
-            _buildUpgradeOption(context, 'Trader Pro', '\$9.99/mo', true),
-            const SizedBox(height: 12),
-            _buildUpgradeOption(context, 'Trader Plus', '\$19.99/mo', false),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildUpgradeOption(BuildContext context, String title, String price, bool isRecommended) {
-    return InkWell(
-      onTap: () {
-        Navigator.pop(context);
-      },
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: AppColors.cardBg,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: isRecommended ? AppColors.purpleCore : AppColors.borderColor),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: GoogleFonts.spaceGrotesk(color: AppColors.textPrimary, fontWeight: FontWeight.w700),
-                ),
-                Text(
-                  price,
-                  style: GoogleFonts.spaceGrotesk(color: AppColors.textSecondarySolid, fontSize: 13),
-                ),
-              ],
-            ),
-            const Icon(CupertinoIcons.bolt_fill, color: AppColors.purpleBright, size: 20),
-          ],
-        ),
+        actions: [
+          CupertinoDialogAction(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.pop(context),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () {
+              // Logic to delete account would go here
+              Navigator.pop(context);
+              context.read<AuthProvider>().signOut();
+            },
+            child: const Text('Delete Permanently'),
+          ),
+        ],
       ),
     );
   }

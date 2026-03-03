@@ -33,31 +33,37 @@ class _FeedScreenState extends State<FeedScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final activeFilter = context.watch<FeedProvider>().activeFilter;
+    String title = 'Feed';
+    if (activeFilter == 'Free') title = 'Free';
+    if (activeFilter == 'Pro') title = 'Premium';
+
     return Scaffold(
       backgroundColor: AppColors.voidBg,
       appBar: AppBar(
         backgroundColor: AppColors.voidBg,
         elevation: 0,
+        leading: context.canPop()
+            ? IconButton(
+                icon: const Icon(CupertinoIcons.chevron_left, color: AppColors.textPrimary),
+                onPressed: () => context.pop(),
+              )
+            : null,
+        titleSpacing: context.canPop() ? 0 : 16,
         title: Row(
           children: [
             Text(
-              'Feed',
+              title,
               style: GoogleFonts.spaceGrotesk(
-                fontSize: 28,
+                fontSize: 24,
                 fontWeight: FontWeight.w800,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 8),
             const LiveBadge(),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(CupertinoIcons.slider_horizontal_3, color: AppColors.purpleBright, size: 20),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: Column(
         children: [
@@ -66,7 +72,7 @@ class _FeedScreenState extends State<FeedScreen> {
             child: Consumer2<FeedProvider, UserProvider>(
               builder: (context, feedProvider, userProvider, child) {
                 if (feedProvider.isLoading) {
-                  return const Center(child: CircularProgressIndicator(color: AppColors.purpleCore));
+                  return const Center(child: CircularProgressIndicator(color: AppColors.foxOrange));
                 }
 
                 if (feedProvider.error != null) {
@@ -82,7 +88,7 @@ class _FeedScreenState extends State<FeedScreen> {
                 final isFree = userProvider.plan == 'free';
 
                 return RefreshIndicator(
-                  color: AppColors.purpleCore,
+                  color: AppColors.foxOrange,
                   backgroundColor: AppColors.surface,
                   onRefresh: () async {
                     await feedProvider.refresh(userProvider.plan);
@@ -105,9 +111,10 @@ class _FeedScreenState extends State<FeedScreen> {
                             itemCount: opportunities.length,
                             itemBuilder: (context, index) {
                               final opportunity = opportunities[index];
-                              // Plan free: bloqueamos si es muy reciente (delay) y tiene puntos altos (>=5),
-                              // permitiendo ver algunas inter/anomalies de bajo puntaje para enganchar al usuario.
-                              final isLocked = isFree && opportunity.isDelayed && opportunity.deltaPoints >= 5.0;
+                              // MODELO FREEMIUM ACTUALIZADO:
+                              // Free (< 3.0%): Visible para todos.
+                              // Pro (>= 3.1%): Bloqueado para usuarios gratuitos.
+                              final isLocked = isFree && opportunity.deltaPoints >= 3.1;
 
                               return AnimationConfiguration.staggeredList(
                                 position: index,
@@ -117,6 +124,7 @@ class _FeedScreenState extends State<FeedScreen> {
                                   child: FadeInAnimation(
                                     child: FreemiumGate(
                                       isLocked: isLocked,
+                                      delta: opportunity.deltaPoints,
                                       child: OpportunityCard(
                                         opportunity: opportunity,
                                         isFeatured: index == 0,
@@ -143,51 +151,55 @@ class _FeedScreenState extends State<FeedScreen> {
   }
 
   Widget _buildFilters(BuildContext context) {
-    const filters = ['All', 'Intra', 'Inter', 'Anomaly', '≥7pts'];
+    const filters = ['All', 'Free', 'Pro'];
     final activeFilter = context.watch<FeedProvider>().activeFilter;
 
-    return SizedBox(
-      height: 50,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: filters.length,
-        itemBuilder: (context, index) {
-          final filter = filters[index];
-          // We map 'All' to 'all' for internal consistency with the provider
-          final displayValue = filter;
-          final bool isActive = (activeFilter == 'all' && displayValue == 'All') || activeFilter == displayValue;
+    return Center(
+      child: SizedBox(
+        height: 50,
+        child: ListView.builder(
+          shrinkWrap: true, // Crucial para centrar
+          scrollDirection: Axis.horizontal,
+          physics: const NeverScrollableScrollPhysics(), // Evita scroll si no es necesario
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: filters.length,
+          itemBuilder: (context, index) {
+            final filter = filters[index];
+            final bool isActive = (activeFilter == 'all' && filter == 'All') || activeFilter == filter;
 
-          return Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: ChoiceChip(
-              label: Text(
-                displayValue,
-                style: GoogleFonts.spaceGrotesk(
-                  color: isActive ? Colors.white : AppColors.textSecondarySolid,
-                  fontSize: 13,
-                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: ChoiceChip(
+                label: Text(
+                  filter.toUpperCase(),
+                  style: GoogleFonts.spaceGrotesk(
+                    color: isActive ? Colors.white : AppColors.textSecondarySolid,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.5,
+                  ),
                 ),
-              ),
-              selected: isActive,
-              onSelected: (selected) {
-                if (selected) {
-                  final providerValue = displayValue == 'All' ? 'all' : displayValue;
-                  context.read<FeedProvider>().setFilter(providerValue);
-                }
-              },
-              selectedColor: AppColors.purpleCore,
-              backgroundColor: AppColors.surface,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-                side: BorderSide(
-                  color: isActive ? AppColors.purpleBright : AppColors.borderColor,
+                selected: isActive,
+                onSelected: (selected) {
+                  if (selected) {
+                    final providerValue = filter == 'All' ? 'all' : filter;
+                    context.read<FeedProvider>().setFilter(providerValue);
+                  }
+                },
+                selectedColor: AppColors.foxOrange,
+                backgroundColor: AppColors.surface,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  side: BorderSide(
+                    color: isActive ? AppColors.foxOrangeBright : AppColors.borderColor,
+                  ),
                 ),
+                showCheckmark: false,
               ),
-              showCheckmark: false,
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

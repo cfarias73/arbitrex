@@ -21,13 +21,10 @@ Deno.serve(async () => {
     }
 
     const opportunities = [
-      ...detectTypeA_Complement(markets),
-      ...detectTypeA_Exhaustive(markets),
+      ...detectSingleMarketArbitrage(markets),
       ...detectTypeA_Hierarchy(markets),
-      ...detectTypeB_InterPlatform(markets),
-      ...detectTypeC_Internal(markets),
+      ...detectTypeA_Exhaustive(markets),
     ]
-
     console.log(`Detected ${opportunities.length} raw opportunities`)
 
     const significant = opportunities.filter(o => o.delta_points >= MIN_DELTA_STORE)
@@ -38,6 +35,7 @@ Deno.serve(async () => {
 
     const elapsed = Date.now() - startTime
 
+    // Log the successful run
     await supabase.from('detection_logs').insert({
       markets_fetched: markets.length,
       opportunities_detected: significant.length,
@@ -68,7 +66,7 @@ Deno.serve(async () => {
 // ─────────────────────────────────────────
 
 async function fetchPolymarketMarkets() {
-  const url = `${POLYMARKET_API}/markets?active=true&closed=false&limit=500&volume_num_gt=2000`
+  const url = `${POLYMARKET_API}/events?active=true&closed=false&limit=300`
   const res = await fetch(url)
   if (!res.ok) throw new Error(`Gamma API error: ${res.status}`)
 
@@ -76,34 +74,45 @@ async function fetchPolymarketMarkets() {
   if (!Array.isArray(data)) return []
 
   const markets: any[] = []
-  for (const m of data) {
-    // conditionId es el que usamos como PK en nuestra tabla markets
-    const marketId = m.conditionId
-    if (!marketId) continue
+  for (const event of data) {
+    if (!event.markets || !Array.isArray(event.markets)) continue
 
-    let probYes = 0
-    let probNo = 0
-    try {
-      const prices = JSON.parse(m.outcomePrices || '[]')
-      probYes = parseFloat(prices[0] || '0')
-      probNo = parseFloat(prices[1] || '0')
-    } catch (_) { }
+    for (const m of event.markets) {
+      if (!m.conditionId || !m.outcomePrices) continue
 
-    markets.push({
-      id: marketId,          // conditionId → matches markets.id PK
-      platform: 'polymarket',
-      title: m.question,
-      category: m.category || 'other',
-      prob_yes: probYes,
-      prob_no: probNo,
-      // event_id NO es columna de la tabla, lo guardamos solo en memoria
-      _event_id: m.events?.[0]?.id || null,
-      volume: parseFloat(m.volume || '0'),
-      updated_at: new Date().toISOString()
-    })
+      let buyYes = 0
+      let buyNo = 0
+      try {
+        const prices = JSON.parse(m.outcomePrices)
+        if (prices.length < 2) continue
+
+        // Costo real de comprar YES: priorizamos Best Ask
+        buyYes = (typeof m.bestAsk === 'number' && m.bestAsk > 0) ? m.bestAsk : parseFloat(prices[0])
+
+        // Costo real de comprar NO
+        buyNo = parseFloat(prices[1])
+
+        // FILTRO CRÍTICO: Ignoramos mercados "muertos" o resueltos (prices cerca de 0 o 1)
+        if (buyYes < 0.005 || buyYes > 0.995) continue
+
+        // Filtro de volumen mínimo reducido para captar ineficiencias frescas
+        if (parseFloat(m.volume || '0') < 1000) continue
+
+        markets.push({
+          id: m.conditionId,
+          platform: 'polymarket',
+          title: m.question,
+          category: m.category || event.category || 'other',
+          buy_yes: buyYes,
+          buy_no: buyNo,
+          volume: parseFloat(m.volume || '0'),
+          updated_at: new Date().toISOString(),
+          _event_id: event.id
+        })
+      } catch (_) { continue }
+    }
   }
 
-  console.log(`Sample market ID: ${markets[0]?.id?.substring(0, 20)}...`)
   return markets
 }
 
@@ -119,8 +128,8 @@ async function upsertMarkets(markets: any[]) {
       platform: m.platform,
       title: m.title,
       category: m.category,
-      prob_yes: m.prob_yes,
-      prob_no: m.prob_no,
+      prob_yes: m.buy_yes,
+      prob_no: m.buy_no,
       volume: m.volume,
       updated_at: m.updated_at
     }))
@@ -136,13 +145,13 @@ async function upsertMarkets(markets: any[]) {
 // DETECTION LOGIC 
 // ─────────────────────────────────────────
 
-function detectTypeA_Complement(markets: any[]) {
+function detectSingleMarketArbitrage(markets: any[]) {
   const results: any[] = []
   for (const m of markets) {
-    if (m.prob_yes <= 0 || m.prob_no <= 0) continue
-    const sum = (m.prob_yes + m.prob_no) * 100
-    const delta = Math.abs(sum - 100)
-    if (delta >= MIN_DELTA_STORE) {
+    if (m.buy_yes <= 0 || m.buy_no <= 0) continue
+    const sum = (m.buy_yes + m.buy_no)
+    if (sum < 0.99) { // Margen de beneficio real > 1%
+      const delta = (1 - sum) * 100
       results.push({
         type: 'type_a',
         subtype: 'complement',
@@ -150,7 +159,7 @@ function detectTypeA_Complement(markets: any[]) {
         market_id_2: null,
         delta_points: parseFloat(delta.toFixed(2)),
         category: m.category,
-        explanation: `YES+NO = ${sum.toFixed(1)}%. Inefficiency of ${delta.toFixed(1)}pp.`,
+        explanation: `Ineficiencia YES+NO: Suman ${(sum * 100).toFixed(1)}%. Retorno esperado del ${delta.toFixed(1)}% comprando ambos.`,
         detected_at: new Date().toISOString(),
         is_active: true,
         delta_history: []
@@ -172,11 +181,16 @@ function detectTypeA_Exhaustive(markets: any[]) {
     }
   }
 
-  for (const [, group] of groups.entries()) {
-    if (group.length < 2) continue
-    const total = group.reduce((s: number, m: any) => s + m.prob_yes, 0) * 100
-    const delta = Math.abs(total - 100)
-    if (delta >= MIN_DELTA_STORE) {
+  for (const [key, group] of groups.entries()) {
+    // FILTRO DE SEGURIDAD: Solo confiamos en arbitraje exhaustivo si el set es PEQUEÑO (2-5 opciones).
+    // Esto evita mercados como 'Máximo Goleador' (26+ jugadores) donde la API suele darnos datos incompletos.
+    if (group.length < 2 || group.length > 5) continue
+
+    const total = group.reduce((s: number, m: any) => s + m.buy_yes, 0)
+    // Solo si la suma total de las opciones YES es < 99.5% (oportunidad de arbitraje multinomial)
+    // Y verificamos que el grupo parezca completo (suma > 80% usualmente en mercados 'Winner of')
+    if (total > 0.85 && total < 0.995) {
+      const delta = (1 - total) * 100
       results.push({
         type: 'type_a',
         subtype: 'exhaustive',
@@ -184,7 +198,7 @@ function detectTypeA_Exhaustive(markets: any[]) {
         market_id_2: group.length > 1 ? group[1].id : null,
         delta_points: parseFloat(delta.toFixed(2)),
         category: group[0].category,
-        explanation: `${group.length} event markets sum ${total.toFixed(1)}% (expected ~100%).`,
+        explanation: `Mercado Exhaustivo (${group.length} opciones): La suma de los precios SÍ es ${(total * 100).toFixed(1)}%. Arbitraje detectado.`,
         detected_at: new Date().toISOString(),
         is_active: true,
         delta_history: []
@@ -196,11 +210,11 @@ function detectTypeA_Exhaustive(markets: any[]) {
 
 function detectTypeA_Hierarchy(markets: any[]) {
   const results: any[] = []
+  // Reglas estrictas de jerarquía temporal para evitar falsos positivos
   const hRules = [
-    { spec: /\bin january\b/i, cont: /\bin q1\b/i },
-    { spec: /\bin february\b/i, cont: /\bin q1\b/i },
-    { spec: /\bin (q1|q2)\b/i, cont: /\bin h1\b/i },
-    { spec: /\bin (q3|q4)\b/i, cont: /\bin h2\b/i },
+    { spec: /\bin (january|febrero)\b/i, cont: /\bin (q1|primer trimestre)\b/i },
+    { spec: /\bin q1\b/i, cont: /\bin h1\b/i },
+    { spec: /\bin 2025\b/i, cont: /\by 202[6-9]\b/i },
   ]
 
   const byEvent = new Map<string, any[]>()
@@ -218,8 +232,10 @@ function detectTypeA_Hierarchy(markets: any[]) {
       const contArr = eventMarkets.filter((m: any) => rule.cont.test(m.title))
       for (const s of specArr) {
         for (const c of contArr) {
-          if (s.prob_yes > c.prob_yes + (MIN_DELTA_STORE / 100)) {
-            const delta = (s.prob_yes - c.prob_yes) * 100
+          // Si el evento específico (más difícil) es más probable que el contenedor (más fácil), es arbitraje.
+          // P(Enero) > P(Q1) es imposible.
+          if (s.buy_yes > c.buy_yes + 0.02) {
+            const delta = (s.buy_yes - c.buy_yes) * 100
             results.push({
               type: 'type_a',
               subtype: 'hierarchy',
@@ -227,7 +243,7 @@ function detectTypeA_Hierarchy(markets: any[]) {
               market_id_2: c.id,
               delta_points: parseFloat(delta.toFixed(2)),
               category: s.category,
-              explanation: `Part (${(s.prob_yes * 100).toFixed(1)}%) > Whole (${(c.prob_yes * 100).toFixed(1)}%).`,
+              explanation: `Error de Jerarquía: El mercado '${s.title}' (${(s.buy_yes * 100).toFixed(1)}%) es más caro que '${c.title}' (${(c.buy_yes * 100).toFixed(1)}%) en el mismo evento.`,
               detected_at: new Date().toISOString(),
               is_active: true,
               delta_history: []
@@ -240,70 +256,20 @@ function detectTypeA_Hierarchy(markets: any[]) {
   return results
 }
 
-function detectTypeB_InterPlatform(polyMarkets: any[]) {
-  const results: any[] = []
-  for (const pm of polyMarkets) {
-    if (pm.volume < 10000) continue
-    const mockDelta = Math.random() > 0.5 ? 0.04 : -0.04
-    const mockProb = pm.prob_yes + mockDelta
-    const delta = Math.abs(pm.prob_yes - mockProb) * 100
-    if (delta >= 4.0) {
-      results.push({
-        type: 'type_b',
-        subtype: 'inter_platform',
-        market_id_1: pm.id,
-        market_id_2: null,
-        delta_points: parseFloat(delta.toFixed(2)),
-        category: pm.category,
-        explanation: `Inter-platform deviation: ${delta.toFixed(1)}pp.`,
-        detected_at: new Date().toISOString(),
-        is_active: true,
-        delta_history: []
-      })
-    }
-  }
-  return results
-}
-
-function detectTypeC_Internal(markets: any[]) {
-  // Type C simplificado: detecta mercados con prob extremas
-  const results: any[] = []
-  for (const m of markets) {
-    if (m.volume < 5000) continue
-    const sum = m.prob_yes + m.prob_no
-    if (sum > 0 && Math.abs(sum - 1) > 0.03) {
-      const delta = Math.abs(sum - 1) * 100
-      results.push({
-        type: 'type_c',
-        subtype: 'price_gap',
-        market_id_1: m.id,
-        market_id_2: null,
-        delta_points: parseFloat(delta.toFixed(2)),
-        category: m.category,
-        explanation: `Price gap: YES(${(m.prob_yes * 100).toFixed(1)}%) + NO(${(m.prob_no * 100).toFixed(1)}%) = ${(sum * 100).toFixed(1)}%.`,
-        detected_at: new Date().toISOString(),
-        is_active: true,
-        delta_history: []
-      })
-    }
-  }
-  return results
-}
-
 // ─────────────────────────────────────────
 // SAVE OPPORTUNITIES
 // ─────────────────────────────────────────
 
 async function saveOpportunities(detected: any[]) {
-  if (detected.length === 0) return []
-
-  // Paso 1: Borrar oportunidades activas anteriores
+  // LIMPIEZA TOTAL: Borramos absolutamente todo para empezar de cero sin basura de 2025
   const { error: delError } = await supabase
     .from('opportunities')
     .delete()
-    .eq('is_active', true)
+    .neq('id', '00000000-0000-0000-0000-000000000000') // Borra todo de forma segura
 
-  if (delError) console.error('Delete old error:', delError.message)
+  if (delError) console.error('Delete all error:', delError.message)
+
+  if (detected.length === 0) return []
 
   // Paso 2: Insertar nuevas en chunks pequeños
   const saved: any[] = []

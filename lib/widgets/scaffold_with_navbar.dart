@@ -11,11 +11,9 @@ class ScaffoldWithNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final String location = GoRouterState.of(context).uri.toString();
     int index = 0;
-    if (location.startsWith('/home')) index = 0;
-    if (location.startsWith('/explore')) index = 1; // Placeholder for Explore
-    if (location.startsWith('/alerts')) index = 2;
-    if (location.startsWith('/stats')) index = 3;
-    if (location.startsWith('/profile')) index = 4;
+    if (location.startsWith('/home') || location.startsWith('/feed')) index = 0;
+    if (location.startsWith('/stats')) index = 1;
+    if (location.startsWith('/profile')) index = 2;
 
     return Scaffold(
       body: child,
@@ -23,10 +21,8 @@ class ScaffoldWithNavBar extends StatelessWidget {
         currentIndex: index,
         onTap: (i) {
           if (i == 0) context.go('/home');
-          if (i == 1) context.go('/home'); // Explore currently points to Home
-          if (i == 2) context.go('/alerts');
-          if (i == 3) context.go('/stats');
-          if (i == 4) context.go('/profile');
+          if (i == 1) context.go('/stats');
+          if (i == 2) context.go('/profile');
         },
       ),
     );

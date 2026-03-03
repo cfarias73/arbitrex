@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../theme/app_colors.dart';
 import '../../models/opportunity.dart';
 import '../../widgets/type_chip.dart';
@@ -64,7 +65,7 @@ class _DetailScreenState extends State<DetailScreen> {
     if (_isLoading) {
       return const Scaffold(
         backgroundColor: AppColors.voidBg,
-        body: Center(child: CircularProgressIndicator(color: AppColors.purpleCore)),
+        body: Center(child: CircularProgressIndicator(color: AppColors.foxOrange)),
       );
     }
 
@@ -120,25 +121,11 @@ class _DetailScreenState extends State<DetailScreen> {
             _buildChartSection(opportunity),
             const SizedBox(height: 32),
             _buildExplanationSection(opportunity),
+            _buildExecutionCard(opportunity),
             const SizedBox(height: 32),
             _buildMetadataRow(opportunity),
             const SizedBox(height: 48),
-            _buildActionButtons(context),
-            const SizedBox(height: 24),
-            Center(
-              child: TextButton.icon(
-                onPressed: () {},
-                icon: const Icon(CupertinoIcons.bell_fill, color: AppColors.textSecondarySolid),
-                label: Text(
-                  'CREATE ALERT',
-                  style: GoogleFonts.spaceGrotesk(
-                    color: AppColors.textMuted,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ),
+            _buildActionButtons(opportunity),
             const SizedBox(height: 40),
           ],
         ),
@@ -155,7 +142,7 @@ class _DetailScreenState extends State<DetailScreen> {
         _buildProbBar(
           label: 'Prob. YES',
           value: probYes,
-          color: AppColors.purpleCore,
+          color: AppColors.foxOrange,
         ),
         const SizedBox(height: 16),
         _buildProbBar(
@@ -234,13 +221,13 @@ class _DetailScreenState extends State<DetailScreen> {
                     return FlSpot(e.key.toDouble(), val);
                   }).toList(),
                   isCurved: true,
-                  color: AppColors.purpleCore,
+                  color: AppColors.foxOrange,
                   barWidth: 3,
                   isStrokeCapRound: true,
                   dotData: const FlDotData(show: false),
                   belowBarData: BarAreaData(
                     show: true,
-                    color: AppColors.purpleCore.withValues(alpha: 0.1),
+                    color: AppColors.foxOrange.withValues(alpha: 0.1),
                   ),
                 ),
               ],
@@ -255,13 +242,13 @@ class _DetailScreenState extends State<DetailScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.purpleCore.withValues(alpha: 0.05),
+        color: AppColors.foxOrange.withValues(alpha: 0.05),
         borderRadius: const BorderRadius.only(
           topRight: Radius.circular(16),
           bottomRight: Radius.circular(16),
         ),
         border: const Border(
-          left: BorderSide(color: AppColors.purpleCore, width: 4),
+          left: BorderSide(color: AppColors.foxOrange, width: 4),
         ),
       ),
       child: Text(
@@ -271,6 +258,108 @@ class _DetailScreenState extends State<DetailScreen> {
           fontSize: 14,
           height: 1.5,
         ),
+      ),
+    );
+  }
+
+  Widget _buildExecutionCard(Opportunity opportunity) {
+    final probYes = (opportunity.market?['prob_yes'] as num?)?.toDouble() ?? 0.0;
+    final probNo = (opportunity.market?['prob_no'] as num?)?.toDouble() ?? 0.0;
+
+    String actionMsg = '';
+    String platform1 = 'Polymarket';
+    String platform2 = (opportunity.type == 'type_b') ? 'Kalshi' : 'Polymarket';
+
+    double totalInvestment = 0;
+    bool showActions = true;
+
+    if (opportunity.subtype == 'complement') {
+      actionMsg = 'Buy \$${(probYes * 100).toStringAsFixed(1)} in YES and \$${(probNo * 100).toStringAsFixed(1)} in NO on $platform1.';
+      totalInvestment = (probYes * 100) + (probNo * 100);
+    } else if (opportunity.type == 'type_b') {
+      final side = opportunity.explanation.contains('(YES)') ? 'YES' : 
+                   opportunity.explanation.contains('(NO)') ? 'NO' : 'YES';
+      if (side == 'YES') {
+        final p2Yes = probYes - (opportunity.deltaPoints / 100);
+        actionMsg = 'Buy \$${(p2Yes * 100).toStringAsFixed(1)} in YES on $platform2 and \$${(probNo * 100).toStringAsFixed(1)} in NO on $platform1.';
+      } else {
+        final p2No = probNo - (opportunity.deltaPoints / 100);
+        actionMsg = 'Buy \$${(probYes * 100).toStringAsFixed(1)} in YES on $platform1 and \$${(p2No * 100).toStringAsFixed(1)} in NO on $platform2.';
+      }
+      totalInvestment = 100 - opportunity.deltaPoints;
+    } else if (opportunity.subtype == 'exhaustive' || opportunity.subtype == 'hierarchy') {
+      // Parse how many options are in the market
+      final optionsMatch = RegExp(r'(\d+) opciones').firstMatch(opportunity.explanation);
+      final numOptions = optionsMatch != null ? int.tryParse(optionsMatch.group(1)!) ?? 0 : 0;
+
+      if (numOptions == 2) {
+        actionMsg = 'In this 2-option market, simply buy \$${(probYes * 100).toStringAsFixed(1)} in YES and \$${(probNo * 100 - opportunity.deltaPoints).toStringAsFixed(1)} in NO on Polymarket.';
+      } else {
+        actionMsg = 'Buy the YES outcome of ALL ${numOptions > 0 ? numOptions : ''} related markets in this event to lock the guaranteed spread profit.';
+      }
+      totalInvestment = 100 - opportunity.deltaPoints;
+    } else {
+      showActions = false;
+    }
+
+    // Profit check: only show if investment is strictly less than the payout ($100)
+    if (totalInvestment >= 99.9 || !showActions) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.accentGreen.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.accentGreen.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(CupertinoIcons.lightbulb_fill, size: 16, color: AppColors.accentGreen),
+              const SizedBox(width: 10),
+              Text(
+                'RECOMMENDED EXECUTION (BASE 100)',
+                style: GoogleFonts.spaceGrotesk(
+                  color: AppColors.accentGreen,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.2,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            actionMsg,
+            style: GoogleFonts.spaceGrotesk(
+              color: AppColors.textPrimary,
+              fontSize: 15,
+              height: 1.5,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: AppColors.accentGreen.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              'You will gain a guaranteed \$100.0 with a total investment of \$${totalInvestment.toStringAsFixed(1)}.',
+              style: GoogleFonts.spaceGrotesk(
+                color: AppColors.accentGreen,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -307,22 +396,43 @@ class _DetailScreenState extends State<DetailScreen> {
     );
   }
 
-  Widget _buildActionButtons(BuildContext context) {
+  Future<void> _launchUrl(String urlString) async {
+    final Uri url = Uri.parse(urlString);
+    if (!await launchUrl(url)) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not launch $urlString')),
+        );
+      }
+    }
+  }
+
+  Widget _buildActionButtons(Opportunity opportunity) {
+    // Only show Kalshi button for inter-platform subtype
+    final bool isInterPlatform = opportunity.type == 'type_b';
+    
+    // Construct URLs. Polymarket link uses the market ID (conditionId)
+    final polyUrl = 'https://polymarket.com/market/${opportunity.marketId1}';
+    // Kalshi link placeholder
+    const kalshiUrl = 'https://kalshi.com/markets';
+
     return Row(
       children: [
         Expanded(
           child: _buildOutlinedButton(
             'View on Polymarket',
-            () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Opening Polymarket...'))),
+            () => _launchUrl(polyUrl),
           ),
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildOutlinedButton(
-            'View on Kalshi',
-            () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Opening Kalshi...'))),
+        if (isInterPlatform) ...[
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildOutlinedButton(
+              'View on Kalshi',
+              () => _launchUrl(kalshiUrl),
+            ),
           ),
-        ),
+        ],
       ],
     );
   }

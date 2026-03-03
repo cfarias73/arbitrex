@@ -29,7 +29,7 @@ class CustomBottomNavBar extends StatelessWidget {
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        selectedItemColor: AppColors.purpleBright,
+        selectedItemColor: AppColors.foxOrangeBright,
         unselectedItemColor: AppColors.textMuted,
         selectedLabelStyle: GoogleFonts.spaceGrotesk(fontSize: 10, fontWeight: FontWeight.w700),
         unselectedLabelStyle: GoogleFonts.spaceGrotesk(fontSize: 10, fontWeight: FontWeight.w500),
@@ -37,14 +37,6 @@ class CustomBottomNavBar extends StatelessWidget {
           BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.bolt_fill, size: 20),
             label: 'FEED',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.compass, size: 20),
-            label: 'EXPLORE',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.bell_fill, size: 20),
-            label: 'ALERTS',
           ),
           BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.chart_bar_fill, size: 20),

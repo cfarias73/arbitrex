@@ -8,7 +8,7 @@ class MockData {
       id: '1',
       type: 'type_a',
       subtype: 'complement',
-      marketId1: 'poly_1',
+      marketId1: 'will-harris-win-pennsylvania-popular-vote',
       deltaPoints: 12.5,
       category: 'Politics',
       explanation: 'Significant divergence detected between Polymarket and Kalshi outcomes. Polymarket overvaluing GOP momentum based on whale volume.',
@@ -21,7 +21,7 @@ class MockData {
       id: '2',
       type: 'type_b',
       subtype: 'inter_market',
-      marketId1: 'poly_2',
+      marketId1: 'will-bitcoin-hit-100k-in-may',
       deltaPoints: 11.2,
       category: 'Crypto',
       explanation: 'Intra-market anomaly on high-leverage liquidations. Kalshi order book shows major sell wall not present on crypto-native platforms.',
@@ -34,7 +34,7 @@ class MockData {
       id: '3',
       type: 'type_c',
       subtype: 'anomaly',
-      marketId1: 'poly_3',
+      marketId1: 'fed-remains-hawkish-in-q2',
       deltaPoints: 10.8,
       category: 'Economy',
       explanation: 'Macro data suggests interest rates will hold, but Polymarket is pricing in a 25bps cut too early compared to Kalshi CME-linked data.',
@@ -58,15 +58,15 @@ class MockData {
     ],
   };
 
-  static final currentUser = ArbitrexUser(
-    email: 'trader@arbitrex.ai',
+  static final currentUser = PolyfoxUser(
+    email: 'trader@polyfox.ai',
     plan: UserPlan.free,
     memberSince: DateTime.now().subtract(const Duration(days: 45)),
     favoriteCategories: ['Politics', 'Crypto'],
   );
 
   static final alerts = [
-    ArbitrexAlert(
+    PolyfoxAlert(
       id: 'a1',
       name: 'High Delta Politics',
       description: 'Notify for all politics opportunities > 8pts',
@@ -74,7 +74,7 @@ class MockData {
       categories: ['Politics'],
       threshold: 8.0,
     ),
-    ArbitrexAlert(
+    PolyfoxAlert(
       id: 'a2',
       name: 'Crypto Anomalies',
       description: 'Sudden price gaps in major crypto pairs',

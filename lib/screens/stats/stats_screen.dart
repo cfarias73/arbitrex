@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/stat_card.dart';
@@ -83,14 +84,14 @@ class _StatsScreenState extends State<StatsScreen> {
       onSelectionChanged: (Set<String> newSelection) {
         final val = newSelection.first;
         if (val != '7d' && !isPro) {
-          _showProGate();
+          context.push('/paywall');
         } else {
           setState(() => _period = val);
         }
       },
       style: SegmentedButton.styleFrom(
         backgroundColor: AppColors.surface,
-        selectedBackgroundColor: AppColors.purpleCore,
+        selectedBackgroundColor: AppColors.foxOrange,
         selectedForegroundColor: Colors.white,
         foregroundColor: AppColors.textSecondarySolid,
         side: const BorderSide(color: AppColors.borderColor),
@@ -150,7 +151,7 @@ class _StatsScreenState extends State<StatsScreen> {
                     BarChartRodData(
                       toY: e.value,
                       gradient: LinearGradient(
-                        colors: [AppColors.purpleCore, isToday ? AppColors.purpleBright : AppColors.purpleCore.withValues(alpha: 0.5)],
+                        colors: [AppColors.foxOrange, isToday ? AppColors.foxOrangeBright : AppColors.foxOrange.withValues(alpha: 0.5)],
                         begin: Alignment.bottomCenter,
                         end: Alignment.topCenter,
                       ),
@@ -212,7 +213,7 @@ class _StatsScreenState extends State<StatsScreen> {
                   child: LinearProgressIndicator(
                     value: cat['value'],
                     backgroundColor: AppColors.surface,
-                    valueColor: const AlwaysStoppedAnimation<Color>(AppColors.purpleBright),
+                    valueColor: const AlwaysStoppedAnimation<Color>(AppColors.foxOrangeBright),
                     minHeight: 6,
                   ),
                 ),
@@ -221,20 +222,6 @@ class _StatsScreenState extends State<StatsScreen> {
           );
         }),
       ],
-    );
-  }
-
-  void _showProGate() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        title: Text('PRO Feature', style: GoogleFonts.spaceGrotesk(color: AppColors.textPrimary)),
-        content: Text('Complete historical analysis is only available for PRO users.', style: GoogleFonts.spaceGrotesk(color: AppColors.textSecondarySolid)),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Understood')),
-        ],
-      ),
     );
   }
 }

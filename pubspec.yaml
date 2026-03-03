@@ -1,5 +1,5 @@
 name: arbitrex
-description: "A new Flutter project."
+description: "Polyfox - Premium Arbitrage Scanner"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -44,6 +44,7 @@ dependencies:
   supabase_flutter: ^2.12.0
   firebase_core: ^4.4.0
   firebase_messaging: ^16.1.1
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:
@@ -69,7 +70,12 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/logo.png
+    - assets/images/iconopolyfox.png
+    - assets/images/Logos.png
+    - assets/images/onboarding_1.png
+    - assets/images/onboarding_2.png
+    - assets/images/onboarding_3.png
+    - assets/images/polyfoxgif.gif
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

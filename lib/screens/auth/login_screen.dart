@@ -63,8 +63,8 @@ class _LoginScreenState extends State<LoginScreen> {
               const Spacer(),
               Center(
                 child: Image.asset(
-                  'assets/images/logo.png',
-                  height: 120,
+                  'assets/images/Logos.png',
+                  height: 160, // Refined height for the new transparent logo
                   fit: BoxFit.contain,
                 ),
               ),
@@ -123,7 +123,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Text(
                       'Sign Up',
                       style: GoogleFonts.spaceGrotesk(
-                        color: AppColors.purpleBright,
+                        color: AppColors.foxOrangeBright,
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                       ),

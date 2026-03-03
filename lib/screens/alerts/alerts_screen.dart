@@ -86,7 +86,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showNewAlertSheet(context),
-        backgroundColor: AppColors.purpleCore,
+        backgroundColor: AppColors.foxOrange,
         child: const Icon(CupertinoIcons.add, color: Colors.white, size: 32),
       ),
     );
@@ -104,12 +104,12 @@ class _AlertsScreenState extends State<AlertsScreen> {
     );
   }
 
-  Widget _buildAlertTile(BuildContext context, ArbitrexAlert alert, UserProvider provider) {
+  Widget _buildAlertTile(BuildContext context, PolyfoxAlert alert, UserProvider provider) {
     Color iconColor;
     IconData icon;
     switch (alert.type) {
       case AlertType.typeA:
-        iconColor = AppColors.purpleBright;
+        iconColor = AppColors.foxOrangeBright;
         icon = CupertinoIcons.bolt_fill;
         break;
       case AlertType.typeB:
@@ -160,8 +160,8 @@ class _AlertsScreenState extends State<AlertsScreen> {
           Switch(
             value: alert.isEnabled,
             onChanged: (val) => provider.toggleAlert(alert.id, val),
-            activeColor: AppColors.purpleCore,
-            activeTrackColor: AppColors.purpleCore.withValues(alpha: 0.3),
+            activeColor: AppColors.foxOrange,
+            activeTrackColor: AppColors.foxOrange.withValues(alpha: 0.3),
           ),
         ],
       ),
@@ -259,7 +259,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                   onPressed: (i) {},
                   borderRadius: BorderRadius.circular(12),
                   selectedColor: Colors.white,
-                  fillColor: AppColors.purpleCore,
+                  fillColor: AppColors.foxOrange,
                   color: AppColors.textSecondarySolid,
                   borderColor: AppColors.borderColor,
                   children: const [
@@ -276,7 +276,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                       'THRESHOLD (DELTA PTS)',
                       style: GoogleFonts.spaceGrotesk(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.w700),
                     ),
-                    const Icon(CupertinoIcons.add, color: AppColors.purpleBright, size: 20),
+                    const Icon(CupertinoIcons.add, color: AppColors.foxOrangeBright, size: 20),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -286,7 +286,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                   max: 15.0,
                   divisions: 12,
                   onChanged: (v) {},
-                  activeColor: AppColors.purpleCore,
+                  activeColor: AppColors.foxOrange,
                   inactiveColor: AppColors.borderColor,
                 ),
                 const Spacer(),
@@ -294,7 +294,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                   text: 'Save Alert',
                   onPressed: () async {
                     final success = await userProvider.createAlert(
-                      ArbitrexAlert(
+                      PolyfoxAlert(
                         id: '',
                         name: 'Alert Delta 7',
                         description: 'Notify when delta > 7 pts',

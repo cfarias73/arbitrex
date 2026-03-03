@@ -1,6 +1,6 @@
 enum AlertType { typeA, typeB, typeC }
 
-class ArbitrexAlert {
+class PolyfoxAlert {
   final String id;
   final String name;
   final String description;
@@ -9,7 +9,7 @@ class ArbitrexAlert {
   final double threshold;
   final bool isEnabled;
 
-  ArbitrexAlert({
+  PolyfoxAlert({
     required this.id,
     required this.name,
     required this.description,
@@ -19,7 +19,7 @@ class ArbitrexAlert {
     this.isEnabled = true,
   });
 
-  factory ArbitrexAlert.fromJson(Map<String, dynamic> json) => ArbitrexAlert(
+  factory PolyfoxAlert.fromJson(Map<String, dynamic> json) => PolyfoxAlert(
     id: json['id'],
     name: json['name'],
     description: json['description'] ?? 'Alerta personalizada',

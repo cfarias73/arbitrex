@@ -7,7 +7,7 @@ class AppTheme {
     return ThemeData(
       brightness: Brightness.dark,
       scaffoldBackgroundColor: AppColors.voidBg,
-      primaryColor: AppColors.purpleCore,
+      primaryColor: AppColors.foxOrange,
       cardColor: AppColors.cardBg,
       dividerColor: AppColors.borderColor,
       
@@ -38,7 +38,7 @@ class AppTheme {
       ),
 
       colorScheme: const ColorScheme.dark(
-        primary: AppColors.purpleCore,
+        primary: AppColors.foxOrange,
         secondary: AppColors.accentCyan,
         surface: AppColors.surface,
         onPrimary: Colors.white,
@@ -47,7 +47,7 @@ class AppTheme {
 
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.purpleCore,
+          backgroundColor: AppColors.foxOrange,
           foregroundColor: Colors.white,
           textStyle: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w700),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -67,7 +67,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.purpleCore, width: 2),
+          borderSide: const BorderSide(color: AppColors.foxOrange, width: 2),
         ),
         hintStyle: GoogleFonts.spaceGrotesk(color: AppColors.textMuted),
         labelStyle: GoogleFonts.spaceGrotesk(color: AppColors.textSecondarySolid),
