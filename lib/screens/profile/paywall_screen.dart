@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/glass_card.dart';
 import '../../widgets/primary_button.dart';
+import '../../services/analytics_service.dart';
 
 class PaywallScreen extends StatefulWidget {
   const PaywallScreen({super.key});
@@ -17,6 +18,12 @@ class PaywallScreen extends StatefulWidget {
 
 class _PaywallScreenState extends State<PaywallScreen> {
   int _selectedPlanIndex = 0; // 0 for Pro, 1 for Plus
+
+  @override
+  void initState() {
+    super.initState();
+    AnalyticsService.logViewPaywall();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -300,7 +307,11 @@ class _PaywallScreenState extends State<PaywallScreen> {
       children: [
         PrimaryButton(
           text: 'Subscribe Now',
-          onPressed: () {},
+          onPressed: () {
+            final planName = _selectedPlanIndex == 0 ? 'Trader Pro' : 'Trader Plus';
+            final price = _selectedPlanIndex == 0 ? 9.99 : 99.99;
+            AnalyticsService.logInitiateCheckout(planName, price);
+          },
           isFullWidth: true,
         ),
         const SizedBox(height: 16),

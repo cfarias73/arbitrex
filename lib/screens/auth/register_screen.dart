@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/primary_button.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/analytics_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -43,6 +44,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
 
     if (success && mounted) {
+      AnalyticsService.logRegistration('email');
       setState(() => _registrationSuccess = true);
     }
   }
