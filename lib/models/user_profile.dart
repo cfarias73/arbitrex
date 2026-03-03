@@ -26,10 +26,13 @@ class UserProfile {
     favoriteCategories: List<String>.from(json['favorite_categories'] ?? []),
   );
 
-  UserProfile copyWith({bool? notificationsEnabled}) => UserProfile(
+  UserProfile copyWith({
+    bool? notificationsEnabled,
+    String? plan,
+  }) => UserProfile(
     id: id,
     email: email,
-    plan: plan,
+    plan: plan ?? this.plan,
     planExpiresAt: planExpiresAt,
     notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
     favoriteCategories: favoriteCategories,

@@ -1,4 +1,4 @@
-package com.example.arbitrex
+package com.polyfox.app
 
 import io.flutter.embedding.android.FlutterActivity
 

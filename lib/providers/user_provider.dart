@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/user_profile.dart';
 import '../models/alert.dart';
+import '../services/purchase_service.dart';
 
 class UserProvider extends ChangeNotifier {
   final _supabase = Supabase.instance.client;
@@ -14,7 +15,7 @@ class UserProvider extends ChangeNotifier {
   List<PolyfoxAlert> get alerts => _alerts;
   bool get isLoading => _isLoading;
   String get plan => _profile?.plan ?? 'free';
-  bool get isPro => plan == 'pro' || plan == 'trader_plus';
+  bool get isPro => plan == 'pro' || plan == 'trader_plus' || plan == 'plus';
   int get maxAlerts => isPro ? 999 : 3;
 
   Future<void> loadProfile() async {
@@ -25,6 +26,11 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      // 1. Check RevenueCat status first
+      final isPremium = await PurchaseService.isPremium();
+      final currentPlan = isPremium ? 'pro' : 'free';
+
+      // 2. Load from Supabase
       final data = await _supabase
           .from('profiles')
           .select()
@@ -32,9 +38,19 @@ class UserProvider extends ChangeNotifier {
           .single();
 
       _profile = UserProfile.fromJson(data);
+
+      // 3. Sync plan if different
+      if (_profile?.plan != currentPlan) {
+        await _supabase
+            .from('profiles')
+            .update({'plan': currentPlan})
+            .eq('id', userId);
+        _profile = _profile?.copyWith(plan: currentPlan);
+      }
+
       await loadAlerts();
     } catch (e) {
-      debugPrint('Error cargando perfil: $e');
+      debugPrint('Error loading profile: $e');
     }
 
     _isLoading = false;

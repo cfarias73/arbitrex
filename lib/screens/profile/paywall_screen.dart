@@ -1,13 +1,15 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../theme/app_colors.dart';
-import '../../widgets/glass_card.dart';
 import '../../widgets/primary_button.dart';
 import '../../services/analytics_service.dart';
+import '../../services/purchase_service.dart';
+import '../../providers/user_provider.dart';
 
 class PaywallScreen extends StatefulWidget {
   const PaywallScreen({super.key});
@@ -18,11 +20,64 @@ class PaywallScreen extends StatefulWidget {
 
 class _PaywallScreenState extends State<PaywallScreen> {
   int _selectedPlanIndex = 0; // 0 for Pro, 1 for Plus
+  Offerings? _offerings;
+  bool _isLoading = true;
+  bool _isPurchasing = false;
 
   @override
   void initState() {
     super.initState();
     AnalyticsService.logViewPaywall();
+    _fetchOfferings();
+  }
+
+  Future<void> _fetchOfferings() async {
+    final offerings = await PurchaseService.getOfferings();
+    if (mounted) {
+      setState(() {
+        _offerings = offerings;
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _handlePurchase() async {
+    if (_offerings == null) return;
+    
+    final currentOffering = _offerings!.current;
+    if (currentOffering == null) return;
+
+    final package = _selectedPlanIndex == 0 
+        ? currentOffering.monthly 
+        : currentOffering.annual;
+
+    if (package == null) return;
+
+    setState(() => _isPurchasing = true);
+
+    try {
+      final success = await PurchaseService.purchasePackage(package);
+      if (success) {
+        if (mounted) {
+          // Refresh user profile to reflect pro plan
+          await context.read<UserProvider>().loadProfile();
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Welcome to Polyfox Pro!')),
+            );
+            context.pop();
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isPurchasing = false);
+    }
   }
 
   @override
@@ -61,28 +116,36 @@ class _PaywallScreenState extends State<PaywallScreen> {
             child: Column(
               children: [
                 _buildAppBar(context),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const SizedBox(height: 12),
-                        _buildHeroSection(),
-                        const SizedBox(height: 24),
-                        _buildFeaturesList(),
-                        const SizedBox(height: 24),
-                        _buildPlanOptions(context),
-                        const SizedBox(height: 20),
-                        _buildLegalLinks(),
-                        const SizedBox(height: 20),
-                      ],
+                if (_isLoading)
+                  const Expanded(child: Center(child: CircularProgressIndicator(color: AppColors.foxOrange)))
+                else
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SizedBox(height: 12),
+                          _buildHeroSection(),
+                          const SizedBox(height: 24),
+                          _buildFeaturesList(),
+                          const SizedBox(height: 24),
+                          _buildPlanOptions(context),
+                          const SizedBox(height: 32),
+                          _buildLegalLinks(),
+                          const SizedBox(height: 40),
+                        ],
+                      ),
                     ),
                   ),
-                ),
               ],
             ),
           ),
+          if (_isPurchasing)
+            Container(
+              color: Colors.black.withValues(alpha: 0.5),
+              child: const Center(child: CircularProgressIndicator(color: AppColors.foxOrange)),
+            ),
         ],
       ),
     );
@@ -99,7 +162,26 @@ class _PaywallScreenState extends State<PaywallScreen> {
             onPressed: () => context.pop(),
           ),
           TextButton(
-            onPressed: () {}, // Restore purchases logic
+            onPressed: () async {
+              setState(() => _isPurchasing = true);
+              final success = await PurchaseService.restorePurchases();
+              if (mounted) {
+                setState(() => _isPurchasing = false);
+                if (success) {
+                  await context.read<UserProvider>().loadProfile();
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Purchases restored successfully!')),
+                    );
+                    context.pop();
+                  }
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('No active subscriptions found.')),
+                  );
+                }
+              }
+            },
             child: Text(
               'Restore',
               style: GoogleFonts.spaceGrotesk(
@@ -165,7 +247,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
   Widget _buildFeatureItem(IconData icon, String title, String subtitle) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(bottom: 20),
       child: Row(
         children: [
           Container(
@@ -205,29 +287,37 @@ class _PaywallScreenState extends State<PaywallScreen> {
   }
 
   Widget _buildPlanOptions(BuildContext context) {
+    final currentOffering = _offerings?.current;
+    if (currentOffering == null) return const SizedBox.shrink();
+
+    final monthlyPkg = currentOffering.monthly;
+    final yearlyPkg = currentOffering.annual;
+
     return Column(
       children: [
-        GestureDetector(
-          onTap: () => setState(() => _selectedPlanIndex = 0),
-          child: _buildPlanCard(
-            'Trader Pro',
-            '\$9.99',
-            'per month',
-            'Most Popular',
-            _selectedPlanIndex == 0,
+        if (monthlyPkg != null)
+          GestureDetector(
+            onTap: () => setState(() => _selectedPlanIndex = 0),
+            child: _buildPlanCard(
+              'Trader Pro',
+              monthlyPkg.storeProduct.priceString,
+              'per month',
+              'Most Popular',
+              _selectedPlanIndex == 0,
+            ),
           ),
-        ),
         const SizedBox(height: 12),
-        GestureDetector(
-          onTap: () => setState(() => _selectedPlanIndex = 1),
-          child: _buildPlanCard(
-            'Trader Plus',
-            '\$99.99',
-            'per year',
-            'Best Value - Save 20%',
-            _selectedPlanIndex == 1,
+        if (yearlyPkg != null)
+          GestureDetector(
+            onTap: () => setState(() => _selectedPlanIndex = 1),
+            child: _buildPlanCard(
+              'Trader Plus',
+              yearlyPkg.storeProduct.priceString,
+              'per year',
+              'Best Value - Save 20%',
+              _selectedPlanIndex == 1,
+            ),
           ),
-        ),
       ],
     );
   }
@@ -307,18 +397,14 @@ class _PaywallScreenState extends State<PaywallScreen> {
       children: [
         PrimaryButton(
           text: 'Subscribe Now',
-          onPressed: () {
-            final planName = _selectedPlanIndex == 0 ? 'Trader Pro' : 'Trader Plus';
-            final price = _selectedPlanIndex == 0 ? 9.99 : 99.99;
-            AnalyticsService.logInitiateCheckout(planName, price);
-          },
+          onPressed: _handlePurchase,
           isFullWidth: true,
         ),
         const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildLinkLabel('Privacy Policy', 'https://www.apple.com/legal/privacy/en-ww/'),
+            _buildLinkLabel('Privacy Policy', 'https://sites.google.com/view/privacypolicypolyfox/inicio'),
             const SizedBox(width: 8),
             Text('•', style: const TextStyle(color: AppColors.textMuted)),
             const SizedBox(width: 8),
@@ -333,9 +419,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
     return GestureDetector(
       onTap: () async {
         final uri = Uri.parse(url);
-        if (await canLaunchUrl(uri)) {
-          await launchUrl(uri);
-        }
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
       },
       child: Text(
         text,
@@ -348,3 +432,4 @@ class _PaywallScreenState extends State<PaywallScreen> {
     );
   }
 }
+

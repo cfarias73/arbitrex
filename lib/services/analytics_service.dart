@@ -1,28 +1,38 @@
 import 'package:facebook_app_events/facebook_app_events.dart';
-import 'package:tiktok_sdk/tiktok_sdk.dart';
+import 'package:tiktok_business_sdk/tiktok_business_sdk.dart';
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'dart:io';
 
 class AnalyticsService {
   static final FacebookAppEvents _facebookAppEvents = FacebookAppEvents();
+  // static final TiktokBusinessSdk _tiktokBusinessSdk = TiktokBusinessSdk();
 
   static Future<void> initialize() async {
-    // Inicialización de TikTok (requiere App ID)
-    // Nota: Sustituir 'YOUR_TIKTOK_APP_ID' con el ID real de TikTok For Business
-    await TikTokSDK.instance.setup(
-      androidAppId: 'YOUR_TIKTOK_APP_ID',
-      iosAppId: 'YOUR_TIKTOK_APP_ID',
-    );
+    // 1. Request App Tracking Transparency (ATT) for iOS
+    if (Platform.isIOS) {
+      await AppTrackingTransparency.requestTrackingAuthorization();
+    }
+
+    // 2. Initialize TikTok (Requires TikTok App ID from Events Manager)
+    /*
+    try {
+      await _tiktokBusinessSdk.initialize(
+        'YOUR_TIKTOK_APP_ID', 
+      );
+    } catch (e) {
+      debugPrint('TikTok SDK initialization error: $e');
+    }
+    */
     
-    // Facebook se inicializa automáticamente si el Info.plist/AndroidManifest está correcto,
-    // pero podemos forzar el log de inicio.
+    // Facebook is initialized automatically via native config.
     await _facebookAppEvents.logEvent(name: 'app_initialized');
   }
 
   // Evento: Registro de usuario completo
   static Future<void> logRegistration(String method) async {
     await _facebookAppEvents.logCompletedRegistration(registrationMethod: method);
-    // TikTok: No tiene un método específico de registro directo en el plugin básico, 
-    // se suele usar logEvent personalizado si es necesario.
+    // TikTok Registration
+    // await _tiktokBusinessSdk.logEvent('CompleteRegistration');
   }
 
   // Evento: Visualización de Paywall
@@ -31,6 +41,8 @@ class AnalyticsService {
       name: 'view_paywall',
       parameters: {'content_type': 'subscription_page'},
     );
+    // TikTok Event
+    // await _tiktokBusinessSdk.logEvent('ViewContent');
   }
 
   // Evento: Suscripción iniciada (Checkout)
@@ -43,6 +55,8 @@ class AnalyticsService {
         'currency': 'USD',
       },
     );
+    // TikTok Checkout
+    // await _tiktokBusinessSdk.logEvent('InitiateCheckout');
   }
 
   // Evento: Suscripción Completada (Compra)
@@ -55,7 +69,7 @@ class AnalyticsService {
     );
     
     // TikTok tracking
-    // Nota: TikTok SDK en Flutter es limitado, pero suele trackear eventos automáticos.
+    // await _tiktokBusinessSdk.logEvent('Subscribe');
   }
 
   // Evento personalizado: Oportunidad vista

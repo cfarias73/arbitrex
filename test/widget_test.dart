@@ -13,12 +13,12 @@ void main() {
           ChangeNotifierProvider(create: (_) => FeedProvider()),
           ChangeNotifierProvider(create: (_) => UserProvider()),
         ],
-        child: const ArbitrexApp(),
+        child: const PolyfoxApp(),
       ),
     );
 
     // Verify that the login screen is shown.
-    expect(find.text('ARBITREX'), findsOneWidget);
-    expect(find.text('Iniciar sesión'), findsOneWidget);
+    expect(find.text('Prediction markets intelligence'), findsOneWidget);
+    expect(find.text('Log In'), findsOneWidget);
   });
 }

@@ -74,13 +74,24 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>polyfox</string>
+				<string>fb1381114894043030</string>
 			</array>
 		</dict>
 	</array>
+	<key>FacebookAppID</key>
+	<string>1381114894043030</string>
+	<key>FacebookClientToken</key>
+	<string>d9eb2dc2194230a79634ce772ae257f8</string>
+	<key>FacebookDisplayName</key>
+	<string>Polyfox</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
+		<string>fbapi</string>
+		<string>fb-messenger-share-api</string>
 		<string>https</string>
 		<string>http</string>
 	</array>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>Your data will be used to measure the effectiveness of our marketing campaigns and provide personalized offers.</string>
 </dict>
 </plist>

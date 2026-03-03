@@ -45,8 +45,10 @@ dependencies:
   firebase_core: ^4.4.0
   firebase_messaging: ^16.1.1
   url_launcher: ^6.3.2
-  facebook_app_events: ^0.15.5
-  tiktok_sdk: ^0.1.1
+  facebook_app_events: ^0.24.0
+  purchases_flutter: ^9.12.3
+  tiktok_business_sdk: ^0.0.1
+  app_tracking_transparency: ^2.0.6+1
 
 dev_dependencies:
   flutter_test:

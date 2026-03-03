@@ -150,7 +150,7 @@ function detectSingleMarketArbitrage(markets: any[]) {
   for (const m of markets) {
     if (m.buy_yes <= 0 || m.buy_no <= 0) continue
     const sum = (m.buy_yes + m.buy_no)
-    if (sum < 0.99) { // Margen de beneficio real > 1%
+    if (sum < 0.995) { // Margen de beneficio real > 0.5% (Ajuste para Feed Free)
       const delta = (1 - sum) * 100
       results.push({
         type: 'type_a',
@@ -182,23 +182,45 @@ function detectTypeA_Exhaustive(markets: any[]) {
   }
 
   for (const [key, group] of groups.entries()) {
-    // FILTRO DE SEGURIDAD: Solo confiamos en arbitraje exhaustivo si el set es PEQUEÑO (2-5 opciones).
-    // Esto evita mercados como 'Máximo Goleador' (26+ jugadores) donde la API suele darnos datos incompletos.
-    if (group.length < 2 || group.length > 5) continue
+    // Ajuste Premium: Aumentamos a 20 opciones para captar mercados de IA/Política complejos.
+    // También bajamos el volumen mínimo a $1500 para permitir señales en el Feed Free.
+    const groupVolume = group.reduce((s, m) => s + m.volume, 0)
+    if (group.length < 2 || group.length > 20 || groupVolume < 1500) continue
 
     const total = group.reduce((s: number, m: any) => s + m.buy_yes, 0)
-    // Solo si la suma total de las opciones YES es < 99.5% (oportunidad de arbitraje multinomial)
-    // Y verificamos que el grupo parezca completo (suma > 80% usualmente en mercados 'Winner of')
-    if (total > 0.85 && total < 0.995) {
+
+    // Calculamos un tamaño de operación recomendado (2% del volumen para minimizar slippage)
+    const recTradeSize = Math.floor(groupVolume * 0.02)
+    const displayTradeSize = recTradeSize > 2500 ? 2500 : (recTradeSize < 50 ? 50 : recTradeSize)
+
+    // CASO 1: Arbitraje por Sub-estimación (Suma < 100%)
+    if (total > 0.70 && total < 0.995) {
       const delta = (1 - total) * 100
       results.push({
         type: 'type_a',
         subtype: 'exhaustive',
         market_id_1: group[0].id,
-        market_id_2: group.length > 1 ? group[1].id : null,
+        market_id_2: null,
         delta_points: parseFloat(delta.toFixed(2)),
         category: group[0].category,
-        explanation: `Mercado Exhaustivo (${group.length} opciones): La suma de los precios SÍ es ${(total * 100).toFixed(1)}%. Arbitraje detectado.`,
+        explanation: `ESTRATEGIA: Compra SI en las ${group.length} opciones. Suma: ${(total * 100).toFixed(1)}%. Retorno: ${delta.toFixed(1)}%. \n\nRECOMENDACIÓN: Opera máximo $${displayTradeSize} para evitar deslizamiento (basado en el 2% de la liquidez).`,
+        detected_at: new Date().toISOString(),
+        is_active: true,
+        delta_history: []
+      })
+    }
+
+    // CASO 2: Arbitraje por Sobre-estimación (Suma > 100%)
+    if (total > 1.05 && total < 1.40) {
+      const delta = (total - 1) * 100
+      results.push({
+        type: 'type_a',
+        subtype: 'exhaustive',
+        market_id_1: group[0].id,
+        market_id_2: null,
+        delta_points: parseFloat(delta.toFixed(2)),
+        category: group[0].category,
+        explanation: `ESTRATEGIA: Compra NO en las opciones más infladas. Suma: ${(total * 100).toFixed(1)}%. Retorno: ${delta.toFixed(1)}%. \n\nRECOMENDACIÓN: Opera máximo $${displayTradeSize} para evitar deslizamiento.`,
         detected_at: new Date().toISOString(),
         is_active: true,
         delta_history: []

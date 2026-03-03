@@ -73,17 +73,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 icon: CupertinoIcons.question_circle,
                 title: 'Support',
                 subtitle: 'info@zoomarketingdigital.com',
-                onTap: () => launchUrl(Uri.parse('mailto:info@zoomarketingdigital.com')),
+                onTap: () => launchUrl(Uri.parse('mailto:info@zoomarketingdigital.com'), mode: LaunchMode.externalApplication),
               ),
               _buildSettingTile(
                 icon: CupertinoIcons.doc_text,
                 title: 'Privacy Policy',
-                onTap: () => launchUrl(Uri.parse('https://www.apple.com/legal/privacy/en-ww/')),
+                onTap: () => launchUrl(Uri.parse('https://sites.google.com/view/privacypolicypolyfox/inicio'), mode: LaunchMode.externalApplication),
               ),
               _buildSettingTile(
                 icon: CupertinoIcons.shield,
                 title: 'Terms of Use (EULA)',
-                onTap: () => launchUrl(Uri.parse('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/')),
+                onTap: () => launchUrl(Uri.parse('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'), mode: LaunchMode.externalApplication),
               ),
               const SizedBox(height: 12),
               _buildSettingTile(

@@ -9,6 +9,7 @@ import 'theme/app_theme.dart';
 import 'router.dart';
 import 'services/notification_service.dart';
 import 'services/analytics_service.dart';
+import 'services/purchase_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +26,7 @@ void main() async {
     await Firebase.initializeApp();
     await NotificationService.initialize();
     await AnalyticsService.initialize();
+    await PurchaseService.initialize();
   } catch (e) {
     debugPrint('Service tracking init warning: $e');
   }
