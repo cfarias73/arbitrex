@@ -118,9 +118,14 @@ class FeedProvider extends ChangeNotifier {
   }
 
   List<Opportunity> _filtered() {
-    if (_activeFilter == 'Free') return _opportunities.where((o) => o.deltaPoints < 3.1).toList();
-    if (_activeFilter == 'Pro') return _opportunities.where((o) => o.deltaPoints >= 3.1).toList();
-    return _opportunities;
+    if (_activeFilter == 'Cross') return _opportunities.where((o) => o.type == 'type_b').toList();
+
+    // Filtros Free y Pro solo deben aplicar a las operaciones intra-polymarket (type_a)
+    final typeA = _opportunities.where((o) => o.type == 'type_a').toList();
+    if (_activeFilter == 'Free') return typeA.where((o) => o.deltaPoints < 3.1).toList();
+    if (_activeFilter == 'Pro') return typeA.where((o) => o.deltaPoints >= 3.1).toList();
+    
+    return _opportunities; // if 'All'
   }
 
   Future<void> refresh(String userPlan) => _loadOpportunities(userPlan);
