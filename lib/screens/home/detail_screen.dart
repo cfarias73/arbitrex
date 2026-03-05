@@ -5,6 +5,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/services.dart';
 import '../../theme/app_colors.dart';
 import '../../models/opportunity.dart';
 import '../../widgets/type_chip.dart';
@@ -83,6 +84,7 @@ class _DetailScreenState extends State<DetailScreen> {
     }
 
     final opportunity = _opportunity!;
+    final isDesktop = MediaQuery.of(context).size.width > 800;
 
     return Scaffold(
       backgroundColor: AppColors.voidBg,
@@ -94,40 +96,112 @@ class _DetailScreenState extends State<DetailScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Text(
-                    opportunity.displayTitle,
-                    style: GoogleFonts.spaceGrotesk(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        opportunity.displayTitle,
+                        style: GoogleFonts.spaceGrotesk(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
                     ),
+                    const SizedBox(width: 16),
+                    TypeChip(type: opportunity.type),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                
+                // Giant profit estimation
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: AppColors.foxOrange.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.foxOrange.withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(CupertinoIcons.sparkles, color: AppColors.foxOrange, size: 32),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '+${opportunity.deltaPoints.toStringAsFixed(1)}% PROFIT ESTIMADO',
+                              style: GoogleFonts.spaceGrotesk(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.foxOrange,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Retorno proyectado tras ejecución en polymarket.',
+                              style: GoogleFonts.spaceGrotesk(color: AppColors.textSecondarySolid, fontSize: 13),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                TypeChip(type: opportunity.type),
+                
+                const SizedBox(height: 32),
+                
+                // Responsive probabilities and chart
+                if (isDesktop)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: _buildProbabilitySection(opportunity),
+                      ),
+                      const SizedBox(width: 32),
+                      Expanded(
+                        flex: 1,
+                        child: _buildChartSection(opportunity),
+                      ),
+                    ],
+                  )
+                else
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildProbabilitySection(opportunity),
+                      const SizedBox(height: 32),
+                      _buildChartSection(opportunity),
+                    ],
+                  ),
+                
+                const SizedBox(height: 32),
+                _buildExplanationSection(opportunity),
+                const SizedBox(height: 24),
+                _buildExecutionCard(opportunity),
+                const SizedBox(height: 24),
+                _buildOmissionRiskWarning(),
+                const SizedBox(height: 32),
+                _buildMetadataRow(opportunity),
+                const SizedBox(height: 48),
+                _buildActionButtons(opportunity),
+                const SizedBox(height: 40),
               ],
             ),
-            const SizedBox(height: 24),
-            _buildProbabilitySection(opportunity),
-            const SizedBox(height: 32),
-            _buildChartSection(opportunity),
-            const SizedBox(height: 32),
-            _buildExplanationSection(opportunity),
-            _buildExecutionCard(opportunity),
-            const SizedBox(height: 32),
-            _buildMetadataRow(opportunity),
-            const SizedBox(height: 48),
-            _buildActionButtons(opportunity),
-            const SizedBox(height: 40),
-          ],
+          ),
         ),
       ),
     );
@@ -178,7 +252,7 @@ class _DetailScreenState extends State<DetailScreen> {
             value: value,
             backgroundColor: AppColors.surface,
             valueColor: AlwaysStoppedAnimation<Color>(color),
-            minHeight: 8,
+            minHeight: 10,
           ),
         ),
       ],
@@ -240,94 +314,73 @@ class _DetailScreenState extends State<DetailScreen> {
 
   Widget _buildExplanationSection(Opportunity opportunity) {
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.foxOrange.withValues(alpha: 0.05),
-        borderRadius: const BorderRadius.only(
-          topRight: Radius.circular(16),
-          bottomRight: Radius.circular(16),
-        ),
-        border: const Border(
-          left: BorderSide(color: AppColors.foxOrange, width: 4),
-        ),
-      ),
-      child: Text(
-        opportunity.explanation,
-        style: GoogleFonts.spaceGrotesk(
-          color: AppColors.textSecondarySolid,
-          fontSize: 14,
-          height: 1.5,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildExecutionCard(Opportunity opportunity) {
-    final probYes = (opportunity.market?['prob_yes'] as num?)?.toDouble() ?? 0.0;
-    final probNo = (opportunity.market?['prob_no'] as num?)?.toDouble() ?? 0.0;
-
-    String actionMsg = '';
-    String platform1 = 'Polymarket';
-    String platform2 = (opportunity.type == 'type_b') ? 'Kalshi' : 'Polymarket';
-
-    double totalInvestment = 0;
-    bool showActions = true;
-
-    if (opportunity.subtype == 'complement') {
-      actionMsg = 'Buy \$${(probYes * 100).toStringAsFixed(1)} in YES and \$${(probNo * 100).toStringAsFixed(1)} in NO on $platform1.';
-      totalInvestment = (probYes * 100) + (probNo * 100);
-    } else if (opportunity.type == 'type_b') {
-      final side = opportunity.explanation.contains('(YES)') ? 'YES' : 
-                   opportunity.explanation.contains('(NO)') ? 'NO' : 'YES';
-      if (side == 'YES') {
-        final p2Yes = probYes - (opportunity.deltaPoints / 100);
-        actionMsg = 'Buy \$${(p2Yes * 100).toStringAsFixed(1)} in YES on $platform2 and \$${(probNo * 100).toStringAsFixed(1)} in NO on $platform1.';
-      } else {
-        final p2No = probNo - (opportunity.deltaPoints / 100);
-        actionMsg = 'Buy \$${(probYes * 100).toStringAsFixed(1)} in YES on $platform1 and \$${(p2No * 100).toStringAsFixed(1)} in NO on $platform2.';
-      }
-      totalInvestment = 100 - opportunity.deltaPoints;
-    } else if (opportunity.subtype == 'exhaustive' || opportunity.subtype == 'hierarchy') {
-      // Parse how many options are in the market
-      final optionsMatch = RegExp(r'(\d+) opciones').firstMatch(opportunity.explanation);
-      final numOptions = optionsMatch != null ? int.tryParse(optionsMatch.group(1)!) ?? 0 : 0;
-
-      if (numOptions == 2) {
-        actionMsg = 'In this 2-option market, simply buy \$${(probYes * 100).toStringAsFixed(1)} in YES and \$${(probNo * 100 - opportunity.deltaPoints).toStringAsFixed(1)} in NO on Polymarket.';
-      } else {
-        actionMsg = 'Buy the YES outcome of ALL ${numOptions > 0 ? numOptions : ''} related markets in this event to lock the guaranteed spread profit.';
-      }
-      totalInvestment = 100 - opportunity.deltaPoints;
-    } else {
-      showActions = false;
-    }
-
-    // Profit check: only show if investment is strictly less than the payout ($100)
-    if (totalInvestment >= 99.9 || !showActions) {
-      return const SizedBox.shrink();
-    }
-
-    return Container(
-      margin: const EdgeInsets.only(top: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.accentGreen.withValues(alpha: 0.1),
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.accentGreen.withValues(alpha: 0.2)),
+        border: Border.all(color: AppColors.borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(CupertinoIcons.lightbulb_fill, size: 16, color: AppColors.accentGreen),
+              const Icon(CupertinoIcons.doc_text_viewfinder, color: AppColors.textSecondarySolid, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'EXPLICACIÓN DEL MERCADO',
+                style: GoogleFonts.spaceGrotesk(
+                  color: AppColors.textMuted,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            opportunity.explanation,
+            style: GoogleFonts.spaceGrotesk(
+              color: AppColors.textPrimary,
+              fontSize: 15,
+              height: 1.6,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExecutionCard(Opportunity opportunity) {
+    String actionMsg = '';
+    
+    if (opportunity.type == 'type_b') {
+       actionMsg = 'Cubre las posiciones entre ambos mercados como indica la recomendación.';
+    } else {
+       actionMsg = 'Compra el NO en ABSOLUTAMENTE TODAS las opciones.';
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.accentGreen.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.accentGreen.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(CupertinoIcons.check_mark_circled_solid, size: 20, color: AppColors.accentGreen),
               const SizedBox(width: 10),
               Text(
-                'RECOMMENDED EXECUTION (BASE 100)',
+                'PLAN DE EJECUCIÓN (BASE 100)',
                 style: GoogleFonts.spaceGrotesk(
                   color: AppColors.accentGreen,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
                   letterSpacing: 1.2,
                 ),
               ),
@@ -338,25 +391,65 @@ class _DetailScreenState extends State<DetailScreen> {
             actionMsg,
             style: GoogleFonts.spaceGrotesk(
               color: AppColors.textPrimary,
-              fontSize: 15,
-              height: 1.5,
-              fontWeight: FontWeight.w500,
+              fontSize: 18,
+              height: 1.4,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 12),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: AppColors.accentGreen.withValues(alpha: 0.1),
+              color: AppColors.accentGreen.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              'You will gain a guaranteed \$100.0 with a total investment of \$${totalInvestment.toStringAsFixed(1)}.',
+              'Aseguras \$100 con una inversión total aproximada de \$${(100 - opportunity.deltaPoints).toStringAsFixed(1)}.',
               style: GoogleFonts.spaceGrotesk(
                 color: AppColors.accentGreen,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildOmissionRiskWarning() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.orange.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(CupertinoIcons.exclamationmark_triangle_fill, size: 20, color: Colors.orange),
+              const SizedBox(width: 10),
+              Text(
+                'RIESGO DE OMISIÓN',
+                style: GoogleFonts.spaceGrotesk(
+                  color: Colors.orange,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1.2,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Las opciones baratas (1% - 3%) son tu seguro. Si omites comprar el NO en estas opciones para "ahorrar", te arriesgas a perder toda tu inversión si ocurre el evento improbable.',
+            style: GoogleFonts.spaceGrotesk(
+              color: Colors.orange.shade100,
+              fontSize: 14,
+              height: 1.5,
             ),
           ),
         ],
@@ -365,13 +458,21 @@ class _DetailScreenState extends State<DetailScreen> {
   }
 
   Widget _buildMetadataRow(Opportunity opportunity) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        _buildMetaItem('CURRENT DELTA', '+${opportunity.deltaPoints.toStringAsFixed(1)} pts'),
-        _buildMetaItem('DETECTED AGO', opportunity.timeAgo),
-        _buildMetaItem('MODE', opportunity.subtype.toUpperCase()),
-      ],
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.borderColor),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _buildMetaItem('DETECTED', opportunity.timeAgo),
+          _buildMetaItem('MODE', opportunity.subtype.toUpperCase()),
+          _buildMetaItem('DELTA', '+${opportunity.deltaPoints.toStringAsFixed(1)}'),
+        ],
+      ),
     );
   }
 
@@ -381,9 +482,9 @@ class _DetailScreenState extends State<DetailScreen> {
       children: [
         Text(
           label,
-          style: GoogleFonts.spaceGrotesk(color: AppColors.textMuted, fontSize: 9, fontWeight: FontWeight.w700, letterSpacing: 1),
+          style: GoogleFonts.spaceGrotesk(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 6),
         Text(
           value,
           style: GoogleFonts.spaceGrotesk(
@@ -416,48 +517,63 @@ class _DetailScreenState extends State<DetailScreen> {
   }
 
   Widget _buildActionButtons(Opportunity opportunity) {
-    // Only show Kalshi button for inter-platform subtype
-    final bool isInterPlatform = opportunity.type == 'type_b';
-    
-    // Construct URLs. Polymarket link uses the market ID (conditionId)
-    final polyUrl = 'https://polymarket.com/market/${opportunity.marketId1}';
-    // Kalshi link placeholder
-    const kalshiUrl = 'https://kalshi.com/markets';
+    // Generate the search-based polymarket URL instead of fragile direct link
+    final query = Uri.encodeComponent(opportunity.displayTitle);
+    final polyAutoSearchUrl = 'https://polymarket.com/markets?query=$query';
 
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: _buildOutlinedButton(
-            'View on Polymarket',
-            () => _launchUrl(polyUrl),
-          ),
-        ),
-        if (isInterPlatform) ...[
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildOutlinedButton(
-              'View on Kalshi',
-              () => _launchUrl(kalshiUrl),
+        SizedBox(
+          width: double.infinity,
+          height: 60,
+          child: ElevatedButton.icon(
+            onPressed: () => _launchUrl(polyAutoSearchUrl),
+            icon: const Icon(CupertinoIcons.search, color: Colors.white),
+            label: Text(
+              'Buscar en Polymarket',
+              style: GoogleFonts.spaceGrotesk(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.accentCyan,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              elevation: 0,
             ),
           ),
-        ],
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          width: double.infinity,
+          height: 56,
+          child: OutlinedButton.icon(
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: opportunity.displayTitle));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Título copiado al portapapeles'),
+                  backgroundColor: AppColors.accentGreen,
+                ),
+              );
+            },
+            icon: const Icon(CupertinoIcons.doc_on_clipboard, color: AppColors.textPrimary),
+            label: Text(
+              'Copiar título',
+              style: GoogleFonts.spaceGrotesk(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: AppColors.borderColor, width: 2),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            ),
+          ),
+        ),
       ],
-    );
-  }
-
-  Widget _buildOutlinedButton(String text, VoidCallback onPressed) {
-    return OutlinedButton(
-      onPressed: onPressed,
-      style: OutlinedButton.styleFrom(
-        foregroundColor: AppColors.textPrimary,
-        side: const BorderSide(color: AppColors.borderColor),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        padding: const EdgeInsets.symmetric(vertical: 16),
-      ),
-      child: Text(
-        text,
-        style: GoogleFonts.spaceGrotesk(fontSize: 12, fontWeight: FontWeight.w700),
-      ),
     );
   }
 }
