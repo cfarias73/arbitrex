@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/responsive_layout.dart';
 import '../../providers/feed_provider.dart';
 import '../../providers/user_provider.dart';
 
@@ -28,64 +29,67 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: AppColors.voidBg,
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 20),
-                    Text(
-                      'Polyfox',
-                      style: GoogleFonts.spaceGrotesk(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
-                        letterSpacing: -1,
+        child: ResponsiveLayout.constrained(
+          Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 20),
+                      Text(
+                        'Arbitrex Alpha',
+                        style: GoogleFonts.spaceGrotesk(
+                          fontSize: 40,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.textPrimary,
+                          letterSpacing: -1.5,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Select your arbitrage strategy',
-                      style: GoogleFonts.spaceGrotesk(
-                        fontSize: 16,
-                        color: AppColors.textSecondarySolid,
-                        fontWeight: FontWeight.w500,
+                      const SizedBox(height: 8),
+                      Text(
+                        'Select your arbitrage strategy to start.',
+                        style: GoogleFonts.spaceGrotesk(
+                          fontSize: 18,
+                          color: AppColors.textSecondarySolid,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 40),
-                    _buildMenuCard(
-                      title: 'Free Alerts',
-                      subtitle: 'Low-spread inefficiencies',
-                      icon: CupertinoIcons.sparkles,
-                      color: AppColors.foxOrangeBright,
-                      badge: '< 3.1 pts',
-                      onTap: () {
-                        context.read<FeedProvider>().setFilter('Free');
-                        context.push('/feed');
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    _buildMenuCard(
-                      title: 'Pro Opportunities',
-                      subtitle: 'Premium high-profit guaranteed arbitrage',
-                      icon: CupertinoIcons.flame_fill,
-                      color: AppColors.accentGreen,
-                      badge: '≥ 3.1 pts',
-                      onTap: () {
-                        context.read<FeedProvider>().setFilter('Pro');
-                        context.push('/feed');
-                      },
-                    ),
-                  ],
+                      const SizedBox(height: 60),
+                      _buildMenuCard(
+                        title: 'Free Alerts',
+                        subtitle: 'Low-spread inefficiencies for everyone',
+                        icon: CupertinoIcons.sparkles,
+                        color: AppColors.foxOrangeBright,
+                        badge: '< 3.1 pts',
+                        onTap: () {
+                          context.read<FeedProvider>().setFilter('Free');
+                          context.push('/feed');
+                        },
+                      ),
+                      const SizedBox(height: 24),
+                      _buildMenuCard(
+                        title: 'Pro Opportunities',
+                        subtitle: 'High-yield guaranteed arbitrage signals',
+                        icon: CupertinoIcons.flame_fill,
+                        color: AppColors.accentGreen,
+                        badge: '≥ 3.1 pts',
+                        onTap: () {
+                          context.read<FeedProvider>().setFilter('Pro');
+                          context.push('/feed');
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            _buildSubtleUpgradeLink(),
-            const SizedBox(height: 24),
-          ],
+              _buildSubtleUpgradeLink(),
+              const SizedBox(height: 48),
+            ],
+          ),
+          width: ResponsiveLayout.maxFeedWidth,
         ),
       ),
     );

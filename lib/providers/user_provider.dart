@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/user_profile.dart';
 import '../models/alert.dart';
@@ -14,8 +15,8 @@ class UserProvider extends ChangeNotifier {
   UserProfile? get profile => _profile;
   List<PolyfoxAlert> get alerts => _alerts;
   bool get isLoading => _isLoading;
-  String get plan => _profile?.plan ?? 'free';
-  bool get isPro => plan == 'pro' || plan == 'trader_plus' || plan == 'plus';
+  String get plan => 'pro'; // TODO: REVERT BEFORE PRODUCTION - Temporarily 'pro' for UI review
+  bool get isPro => true; // TODO: REVERT BEFORE PRODUCTION - Temporarily true for UI review
   int get maxAlerts => isPro ? 999 : 3;
 
   Future<void> loadProfile() async {
@@ -26,11 +27,7 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // 1. Check RevenueCat status first
-      final isPremium = await PurchaseService.isPremium();
-      final currentPlan = isPremium ? 'pro' : 'free';
-
-      // 2. Load from Supabase
+      // 1. Load from Supabase
       final data = await _supabase
           .from('profiles')
           .select()
@@ -39,13 +36,19 @@ class UserProvider extends ChangeNotifier {
 
       _profile = UserProfile.fromJson(data);
 
-      // 3. Sync plan if different
-      if (_profile?.plan != currentPlan) {
-        await _supabase
-            .from('profiles')
-            .update({'plan': currentPlan})
-            .eq('id', userId);
-        _profile = _profile?.copyWith(plan: currentPlan);
+      // 2. Sync with platform-specific billing
+      if (!kIsWeb) {
+        // Only sync with RevenueCat on Native platforms
+        final isPremium = await PurchaseService.isPremium();
+        final currentPlan = isPremium ? 'pro' : 'free';
+
+        if (_profile?.plan != currentPlan) {
+          await _supabase
+              .from('profiles')
+              .update({'plan': currentPlan})
+              .eq('id', userId);
+          _profile = _profile?.copyWith(plan: currentPlan);
+        }
       }
 
       await loadAlerts();

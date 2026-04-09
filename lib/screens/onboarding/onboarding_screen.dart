@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/responsive_layout.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -20,13 +21,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     OnboardingData(
       title: 'Spot Arbitrage Opportunities',
       subtitle: 'Real-time detection of probability inefficiencies across prediction markets.',
-      image: 'assets/images/onboarding_1.png',
+      image: 'assets/images/Logos.png',
       accentTitle: 'Spot',
     ),
     OnboardingData(
       title: 'Unmatched Reliability',
       subtitle: 'Data-driven insights you can trust, with 24/7 monitoring and high-precision alerts.',
-      image: 'assets/images/onboarding_2.png',
+      image: 'assets/images/Logos.png',
       accentTitle: 'Reliability',
     ),
     OnboardingData(
@@ -54,36 +55,52 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
           Positioned(
             top: 60,
-            right: 24,
-            child: TextButton(
-              onPressed: () => context.go('/'),
-              child: Text(
-                'SKIP',
-                style: GoogleFonts.spaceGrotesk(
-                  color: AppColors.textMuted,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 12,
-                  letterSpacing: 1.5,
+            right: 0,
+            left: 0,
+            child: ResponsiveLayout.constrained(
+              Align(
+                alignment: Alignment.topRight,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: TextButton(
+                    onPressed: () => context.go('/'),
+                    child: Text(
+                      'SKIP',
+                      style: GoogleFonts.spaceGrotesk(
+                        color: AppColors.textMuted,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                  ),
                 ),
               ),
+              width: ResponsiveLayout.maxFeedWidth,
             ),
           ),
           Positioned(
             bottom: 60,
-            left: 24,
-            right: 24,
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(
-                    _onboardingData.length,
-                    (index) => _buildIndicator(index == _currentPage),
-                  ),
+            left: 0,
+            right: 0,
+            child: ResponsiveLayout.constrained(
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(
+                        _onboardingData.length,
+                        (index) => _buildIndicator(index == _currentPage),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    _buildButton(),
+                  ],
                 ),
-                const SizedBox(height: 32),
-                _buildButton(),
-              ],
+              ),
+              width: ResponsiveLayout.maxFeedWidth,
             ),
           ),
         ],

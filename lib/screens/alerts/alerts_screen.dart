@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/responsive_layout.dart';
 import '../../widgets/primary_button.dart';
 import '../../widgets/freemium_gate.dart';
 import '../../providers/user_provider.dart';
@@ -31,6 +32,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.voidBg,
         elevation: 0,
+        centerTitle: ResponsiveLayout.isDesktop(context),
         title: Text(
           'Alerts',
           style: GoogleFonts.spaceGrotesk(
@@ -46,48 +48,57 @@ class _AlertsScreenState extends State<AlertsScreen> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          return ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              _buildSectionTitle('CONFIGURED'),
-              const SizedBox(height: 12),
-              if (userProvider.alerts.isEmpty)
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 24),
-                    child: Text(
-                      'No alerts configured yet',
-                      style: GoogleFonts.spaceGrotesk(color: AppColors.textMuted),
-                    ),
-                  ),
-                )
-              else
-                ...userProvider.alerts.map((alert) => Dismissible(
-                      key: Key(alert.id),
-                      direction: DismissDirection.endToStart,
-                      background: Container(
-                        alignment: Alignment.centerRight,
-                        padding: const EdgeInsets.only(right: 20),
-                        color: AppColors.accentRed.withValues(alpha: 0.2),
-                        child: const Icon(CupertinoIcons.delete, color: AppColors.accentRed),
+          return ResponsiveLayout.constrained(
+            ListView(
+              padding: const EdgeInsets.all(24),
+              children: [
+                _buildSectionTitle('CONFIGURED'),
+                const SizedBox(height: 12),
+                if (userProvider.alerts.isEmpty)
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      child: Text(
+                        'No alerts configured yet',
+                        style: GoogleFonts.spaceGrotesk(color: AppColors.textMuted),
                       ),
-                      onDismissed: (_) => userProvider.deleteAlert(alert.id),
-                      child: _buildAlertTile(context, alert, userProvider),
-                    )),
-              const SizedBox(height: 32),
-              _buildSectionTitle('RECENT NOTIFICATIONS'),
-              const SizedBox(height: 12),
-              _buildNotificationTile('Harris wins PA', 'Detected 2m ago • Delta 12.5', true),
-              _buildNotificationTile('BTC hits 100k', 'Detected 15m ago • Delta 11.2', true),
-              _buildNotificationTile('Fed hawkish Q2', 'Detected 30m ago • Delta 10.8', false),
-            ],
+                    ),
+                  )
+                else
+                  ...userProvider.alerts.map((alert) => Dismissible(
+                        key: Key(alert.id),
+                        direction: DismissDirection.endToStart,
+                        background: Container(
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.only(right: 20),
+                          color: AppColors.accentRed.withValues(alpha: 0.2),
+                          child: const Icon(CupertinoIcons.delete, color: AppColors.accentRed),
+                        ),
+                        onDismissed: (_) => userProvider.deleteAlert(alert.id),
+                        child: _buildAlertTile(context, alert, userProvider),
+                      )),
+                const SizedBox(height: 32),
+                _buildSectionTitle('RECENT NOTIFICATIONS'),
+                const SizedBox(height: 12),
+                _buildNotificationTile('Harris wins PA', 'Detected 2m ago • Delta 12.5', true),
+                _buildNotificationTile('BTC hits 100k', 'Detected 15m ago • Delta 11.2', true),
+                _buildNotificationTile('Fed hawkish Q2', 'Detected 30m ago • Delta 10.8', false),
+              ],
+            ),
+            width: ResponsiveLayout.maxFeedWidth,
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showNewAlertSheet(context),
-        backgroundColor: AppColors.foxOrange,
-        child: const Icon(CupertinoIcons.add, color: Colors.white, size: 32),
+      floatingActionButton: ResponsiveLayout.constrained(
+        Align(
+          alignment: Alignment.bottomRight,
+          child: FloatingActionButton(
+            onPressed: () => _showNewAlertSheet(context),
+            backgroundColor: AppColors.foxOrange,
+            child: const Icon(CupertinoIcons.add, color: Colors.white, size: 32),
+          ),
+        ),
+        width: ResponsiveLayout.maxFeedWidth,
       ),
     );
   }
@@ -220,96 +231,93 @@ class _AlertsScreenState extends State<AlertsScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return FreemiumGate(
-          isLocked: isLocked,
-          child: Container(
-            height: MediaQuery.of(context).size.height * 0.7,
-            padding: const EdgeInsets.all(24),
-            decoration: const BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-              border: Border(top: BorderSide(color: AppColors.borderColor, width: 2)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: AppColors.borderColor,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.7,
+          padding: const EdgeInsets.all(24),
+          decoration: const BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+            border: Border(top: BorderSide(color: AppColors.borderColor, width: 2)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.borderColor,
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                const SizedBox(height: 24),
-                Text(
-                  'New Alert',
-                  style: GoogleFonts.spaceGrotesk(fontSize: 24, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
-                ),
-                const SizedBox(height: 32),
-                Text(
-                  'OPPORTUNITY TYPE',
-                  style: GoogleFonts.spaceGrotesk(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 12),
-                ToggleButtons(
-                  isSelected: const [true, false, false],
-                  onPressed: (i) {},
-                  borderRadius: BorderRadius.circular(12),
-                  selectedColor: Colors.white,
-                  fillColor: AppColors.foxOrange,
-                  color: AppColors.textSecondarySolid,
-                  borderColor: AppColors.borderColor,
-                  children: const [
-                    Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text('INTRA')),
-                    Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text('INTER')),
-                    Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text('ANOMALY')),
-                  ],
-                ),
-                const SizedBox(height: 32),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'THRESHOLD (DELTA PTS)',
-                      style: GoogleFonts.spaceGrotesk(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.w700),
-                    ),
-                    const Icon(CupertinoIcons.add, color: AppColors.foxOrangeBright, size: 20),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Slider(
-                  value: 7.0,
-                  min: 3.0,
-                  max: 15.0,
-                  divisions: 12,
-                  onChanged: (v) {},
-                  activeColor: AppColors.foxOrange,
-                  inactiveColor: AppColors.borderColor,
-                ),
-                const Spacer(),
-                PrimaryButton(
-                  text: 'Save Alert',
-                  onPressed: () async {
-                    final success = await userProvider.createAlert(
-                      PolyfoxAlert(
-                        id: '',
-                        name: 'Alert Delta 7',
-                        description: 'Notify when delta > 7 pts',
-                        type: AlertType.typeA,
-                        categories: [],
-                        threshold: 7.0,
-                      )
-                    );
-                    if (mounted) Navigator.pop(context);
-                  },
-                  isFullWidth: true,
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'New Alert',
+                style: GoogleFonts.spaceGrotesk(fontSize: 24, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+              ),
+              const SizedBox(height: 32),
+              Text(
+                'OPPORTUNITY TYPE',
+                style: GoogleFonts.spaceGrotesk(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 12),
+              ToggleButtons(
+                isSelected: const [true, false, false],
+                onPressed: (i) {},
+                borderRadius: BorderRadius.circular(12),
+                selectedColor: Colors.white,
+                fillColor: AppColors.foxOrange,
+                color: AppColors.textSecondarySolid,
+                borderColor: AppColors.borderColor,
+                children: const [
+                  Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text('INTRA')),
+                  Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text('INTER')),
+                  Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text('ANOMALY')),
+                ],
+              ),
+              const SizedBox(height: 32),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'THRESHOLD (DELTA PTS)',
+                    style: GoogleFonts.spaceGrotesk(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.w700),
+                  ),
+                  const Icon(CupertinoIcons.add, color: AppColors.foxOrangeBright, size: 20),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Slider(
+                value: 7.0,
+                min: 3.0,
+                max: 15.0,
+                divisions: 12,
+                onChanged: (v) {},
+                activeColor: AppColors.foxOrange,
+                inactiveColor: AppColors.borderColor,
+              ),
+              const Spacer(),
+              PrimaryButton(
+                text: 'Save Alert',
+                onPressed: () async {
+                  final success = await userProvider.createAlert(
+                    PolyfoxAlert(
+                      id: '',
+                      name: 'Alert Delta 7',
+                      description: 'Notify when delta > 7 pts',
+                      type: AlertType.typeA,
+                      categories: [],
+                      threshold: 7.0,
+                    )
+                  );
+                  if (mounted) Navigator.pop(context);
+                },
+                isFullWidth: true,
+              ),
+              const SizedBox(height: 16),
+            ],
           ),
         );
       },

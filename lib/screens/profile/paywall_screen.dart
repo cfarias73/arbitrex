@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/responsive_layout.dart';
 import '../../widgets/primary_button.dart';
 import '../../services/analytics_service.dart';
 import '../../services/purchase_service.dart';
@@ -32,6 +34,11 @@ class _PaywallScreenState extends State<PaywallScreen> {
   }
 
   Future<void> _fetchOfferings() async {
+    if (kIsWeb) {
+      if (mounted) setState(() => _isLoading = false);
+      return;
+    }
+
     final offerings = await PurchaseService.getOfferings();
     if (mounted) {
       setState(() {
@@ -42,6 +49,16 @@ class _PaywallScreenState extends State<PaywallScreen> {
   }
 
   Future<void> _handlePurchase() async {
+    if (kIsWeb) {
+      // Direct to Stripe Checkout for Web
+      final stripeUrl = _selectedPlanIndex == 0 
+          ? 'https://buy.stripe.com/test_5kAcO97zX28N5Wg6oo' // Pro Monthly Link
+          : 'https://buy.stripe.com/test_6oE5lH7zX28N5Wg6oo'; // Plus Yearly Link
+      
+      await PurchaseService.launchStripeCheckout(stripeUrl);
+      return;
+    }
+
     if (_offerings == null) return;
     
     final currentOffering = _offerings!.current;
@@ -113,32 +130,35 @@ class _PaywallScreenState extends State<PaywallScreen> {
           ),
           
           SafeArea(
-            child: Column(
-              children: [
-                _buildAppBar(context),
-                if (_isLoading)
-                  const Expanded(child: Center(child: CircularProgressIndicator(color: AppColors.foxOrange)))
-                else
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const SizedBox(height: 12),
-                          _buildHeroSection(),
-                          const SizedBox(height: 24),
-                          _buildFeaturesList(),
-                          const SizedBox(height: 24),
-                          _buildPlanOptions(context),
-                          const SizedBox(height: 32),
-                          _buildLegalLinks(),
-                          const SizedBox(height: 40),
-                        ],
+            child: ResponsiveLayout.constrained(
+              Column(
+                children: [
+                  _buildAppBar(context),
+                  if (_isLoading)
+                    const Expanded(child: Center(child: CircularProgressIndicator(color: AppColors.foxOrange)))
+                  else
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const SizedBox(height: 12),
+                            _buildHeroSection(),
+                            const SizedBox(height: 48),
+                            _buildFeaturesList(),
+                            const SizedBox(height: 48),
+                            _buildPlanOptions(context),
+                            const SizedBox(height: 48),
+                            _buildLegalLinks(),
+                            const SizedBox(height: 40),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
+              width: ResponsiveLayout.maxFeedWidth,
             ),
           ),
           if (_isPurchasing)
@@ -161,35 +181,36 @@ class _PaywallScreenState extends State<PaywallScreen> {
             icon: const Icon(CupertinoIcons.xmark, color: AppColors.textPrimary),
             onPressed: () => context.pop(),
           ),
-          TextButton(
-            onPressed: () async {
-              setState(() => _isPurchasing = true);
-              final success = await PurchaseService.restorePurchases();
-              if (mounted) {
-                setState(() => _isPurchasing = false);
-                if (success) {
-                  await context.read<UserProvider>().loadProfile();
-                  if (mounted) {
+          if (!kIsWeb)
+            TextButton(
+              onPressed: () async {
+                setState(() => _isPurchasing = true);
+                final success = await PurchaseService.restorePurchases();
+                if (mounted) {
+                  setState(() => _isPurchasing = false);
+                  if (success) {
+                    await context.read<UserProvider>().loadProfile();
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Purchases restored successfully!')),
+                      );
+                      context.pop();
+                    }
+                  } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Purchases restored successfully!')),
+                      const SnackBar(content: Text('No active subscriptions found.')),
                     );
-                    context.pop();
                   }
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('No active subscriptions found.')),
-                  );
                 }
-              }
-            },
-            child: Text(
-              'Restore',
-              style: GoogleFonts.spaceGrotesk(
-                color: AppColors.textSecondarySolid,
-                fontWeight: FontWeight.w600,
+              },
+              child: Text(
+                'Restore',
+                style: GoogleFonts.spaceGrotesk(
+                  color: AppColors.textSecondarySolid,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -212,7 +233,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
         ),
         const SizedBox(height: 16),
         Text(
-          'Go Pro',
+          kIsWeb ? 'Join Arbitrex Pro' : 'Go Pro',
           textAlign: TextAlign.center,
           style: GoogleFonts.spaceGrotesk(
             fontSize: 32,
@@ -287,6 +308,34 @@ class _PaywallScreenState extends State<PaywallScreen> {
   }
 
   Widget _buildPlanOptions(BuildContext context) {
+    if (kIsWeb) {
+      return Column(
+        children: [
+          GestureDetector(
+            onTap: () => setState(() => _selectedPlanIndex = 0),
+            child: _buildPlanCard(
+              'Trader Pro',
+              '\$29.99',
+              'per month',
+              'Fastest Results',
+              _selectedPlanIndex == 0,
+            ),
+          ),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: () => setState(() => _selectedPlanIndex = 1),
+            child: _buildPlanCard(
+              'Trader Plus',
+              '\$249.99',
+              'per year',
+              'Best Value - Save 30%',
+              _selectedPlanIndex == 1,
+            ),
+          ),
+        ],
+      );
+    }
+
     final currentOffering = _offerings?.current;
     if (currentOffering == null) return const SizedBox.shrink();
 
@@ -396,7 +445,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
     return Column(
       children: [
         PrimaryButton(
-          text: 'Subscribe Now',
+          text: kIsWeb ? 'Checkout with Stripe' : 'Subscribe Now',
           onPressed: _handlePurchase,
           isFullWidth: true,
         ),

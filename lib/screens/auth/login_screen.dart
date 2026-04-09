@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/responsive_layout.dart';
 import '../../widgets/primary_button.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/user_provider.dart';
@@ -42,6 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final authProvider = context.watch<AuthProvider>();
 
     return Scaffold(
+      backgroundColor: AppColors.voidBg,
       body: Container(
         decoration: const BoxDecoration(
           color: AppColors.voidBg,
@@ -54,99 +56,106 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Spacer(),
-              Center(
-                child: Image.asset(
-                  'assets/images/Logos.png',
-                  height: 160, // Refined height for the new transparent logo
-                  fit: BoxFit.contain,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Prediction markets intelligence',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.spaceGrotesk(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.textSecondarySolid,
-                ),
-              ),
-              const SizedBox(height: 64),
-              _buildTextField(
-                label: 'Email',
-                hint: 'name@example.com',
-                controller: _emailController,
-              ),
-              const SizedBox(height: 16),
-              _buildTextField(
-                label: 'Password',
-                hint: '••••••••',
-                isPassword: true,
-                controller: _passwordController,
-              ),
-              if (authProvider.error != null) ...[
-                const SizedBox(height: 16),
-                Text(
-                  authProvider.error!,
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.spaceGrotesk(
-                    color: AppColors.accentRed,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-              const SizedBox(height: 24),
-              PrimaryButton(
-                text: 'Log In',
-                isFullWidth: true,
-                isLoading: authProvider.isLoading,
-                onPressed: authProvider.isLoading ? null : () => _handleLogin(),
-              ),
-              const SizedBox(height: 32),
-              Row(
+        child: SingleChildScrollView(
+          child: Container(
+            constraints: BoxConstraints(
+              minHeight: MediaQuery.of(context).size.height,
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: ResponsiveLayout.constrained(
+              Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    "Don't have an account? ",
-                    style: GoogleFonts.spaceGrotesk(color: AppColors.textMuted, fontSize: 13),
+                  const SizedBox(height: 80),
+                  Center(
+                    child: Image.asset(
+                      'assets/images/Logos.png',
+                      height: 160,
+                      fit: BoxFit.contain,
+                    ),
                   ),
-                  GestureDetector(
-                    onTap: () => context.push('/register'),
-                    child: Text(
-                      'Sign Up',
+                  const SizedBox(height: 8),
+                  Text(
+                    'Prediction markets intelligence',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.spaceGrotesk(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.textSecondarySolid,
+                    ),
+                  ),
+                  const SizedBox(height: 64),
+                  _buildTextField(
+                    label: 'Email',
+                    hint: 'name@example.com',
+                    controller: _emailController,
+                  ),
+                  const SizedBox(height: 20),
+                  _buildTextField(
+                    label: 'Password',
+                    hint: '••••••••',
+                    isPassword: true,
+                    controller: _passwordController,
+                  ),
+                  if (authProvider.error != null) ...[
+                    const SizedBox(height: 20),
+                    Text(
+                      authProvider.error!,
+                      textAlign: TextAlign.center,
                       style: GoogleFonts.spaceGrotesk(
-                        color: AppColors.foxOrangeBright,
+                        color: AppColors.accentRed,
                         fontSize: 13,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 32),
+                  PrimaryButton(
+                    text: 'Log In',
+                    isFullWidth: true,
+                    isLoading: authProvider.isLoading,
+                    onPressed: authProvider.isLoading ? null : () => _handleLogin(),
+                  ),
+                  const SizedBox(height: 40),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Don't have an account? ",
+                        style: GoogleFonts.spaceGrotesk(color: AppColors.textMuted, fontSize: 13),
+                      ),
+                      GestureDetector(
+                        onTap: () => context.push('/register'),
+                        child: Text(
+                          'Sign Up',
+                          style: GoogleFonts.spaceGrotesk(
+                            color: AppColors.foxOrangeBright,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  Center(
+                    child: GestureDetector(
+                      onTap: () => context.push('/recover'),
+                      child: Text(
+                        'Forgot password?',
+                        style: GoogleFonts.spaceGrotesk(
+                          color: AppColors.textPrimary,
+                          fontSize: 14,
+                          decoration: TextDecoration.underline,
+                        ),
                       ),
                     ),
                   ),
+                  const SizedBox(height: 80),
                 ],
               ),
-              const SizedBox(height: 16),
-              Center(
-                child: GestureDetector(
-                  onTap: () => context.push('/recover'),
-                  child: Text(
-                    'Forgot password?',
-                    style: GoogleFonts.spaceGrotesk(
-                      color: AppColors.textPrimary,
-                      fontSize: 14,
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
-                ),
-              ),
-              const Spacer(flex: 2),
-            ],
+            ),
           ),
         ),
       ),

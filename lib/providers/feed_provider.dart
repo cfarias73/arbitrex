@@ -9,12 +9,14 @@ class FeedProvider extends ChangeNotifier {
   bool _isLoading = true;
   String? _error;
   String _activeFilter = 'all';
+  String _timeFilter = 'all'; // 'all', '7d', '30d', '30d+'
   RealtimeChannel? _channel;
 
   List<Opportunity> get opportunities => _filtered();
   bool get isLoading => _isLoading;
   String? get error => _error;
   String get activeFilter => _activeFilter;
+  String get timeFilter => _timeFilter;
 
   Future<void> initialize(String userPlan) async {
     await _loadOpportunities(userPlan);
@@ -29,7 +31,7 @@ class FeedProvider extends ChangeNotifier {
     try {
       final typeAQuery = _supabase
           .from('opportunities')
-          .select('*, market:market_id_1(title, category, prob_yes, prob_no)')
+          .select('*, market:market_id_1(title, category, prob_yes, prob_no, end_date)')
           .eq('is_active', true)
           .eq('type', 'type_a')
           .order('detected_at', ascending: false)
@@ -37,7 +39,7 @@ class FeedProvider extends ChangeNotifier {
 
       final typeBQuery = _supabase
           .from('opportunities')
-          .select('*, market:market_id_1(title, category, prob_yes, prob_no)')
+          .select('*, market:market_id_1(title, category, prob_yes, prob_no, end_date)')
           .eq('is_active', true)
           .eq('type', 'type_b')
           .order('detected_at', ascending: false)
@@ -45,7 +47,7 @@ class FeedProvider extends ChangeNotifier {
 
       final typeCQuery = _supabase
           .from('opportunities')
-          .select('*, market:market_id_1(title, category, prob_yes, prob_no)')
+          .select('*, market:market_id_1(title, category, prob_yes, prob_no, end_date)')
           .eq('is_active', true)
           .eq('type', 'type_c')
           .order('detected_at', ascending: false)
@@ -82,12 +84,7 @@ class FeedProvider extends ChangeNotifier {
           table: 'opportunities',
           callback: (payload) {
             final newOpp = Opportunity.fromJson(payload.newRecord);
-            
-            // Ya no filtramos por tipo aquí, dejamos que el UI maneje el bloqueo
-            // basándose en el plan del usuario.
-
             _opportunities.insert(0, newOpp);
-            // Mantener máximo 100 items en memoria
             if (_opportunities.length > 100) _opportunities.removeLast();
             notifyListeners();
           },
@@ -101,7 +98,6 @@ class FeedProvider extends ChangeNotifier {
             final index = _opportunities.indexWhere((o) => o.id == updated.id);
 
             if (!updated.isActive) {
-              // Remover oportunidades cerradas del feed
               if (index >= 0) _opportunities.removeAt(index);
             } else if (index >= 0) {
               _opportunities[index] = updated;
@@ -117,15 +113,40 @@ class FeedProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<Opportunity> _filtered() {
-    if (_activeFilter == 'Cross') return _opportunities.where((o) => o.type == 'type_b').toList();
+  void setTimeFilter(String filter) {
+    _timeFilter = filter;
+    notifyListeners();
+  }
 
-    // Filtros Free y Pro solo deben aplicar a las operaciones intra-polymarket (type_a)
-    final typeA = _opportunities.where((o) => o.type == 'type_a').toList();
-    if (_activeFilter == 'Free') return typeA.where((o) => o.deltaPoints < 3.1).toList();
-    if (_activeFilter == 'Pro') return typeA.where((o) => o.deltaPoints >= 3.1).toList();
-    
-    return _opportunities; // if 'All'
+  List<Opportunity> _filtered() {
+    List<Opportunity> result;
+
+    if (_activeFilter == 'Cross') {
+      result = _opportunities.where((o) => o.type == 'type_b').toList();
+    } else {
+      final typeA = _opportunities.where((o) => o.type == 'type_a').toList();
+      if (_activeFilter == 'Free') {
+        result = typeA.where((o) => o.deltaPoints < 3.1).toList();
+      } else if (_activeFilter == 'Pro') {
+        result = typeA.where((o) => o.deltaPoints >= 3.1).toList();
+      } else {
+        result = List.from(_opportunities);
+      }
+    }
+
+    // Apply time filter
+    if (_timeFilter != 'all') {
+      result = result.where((o) {
+        final days = o.daysToResolution;
+        if (days == null) return _timeFilter == '90d+'; // Unknown = long term
+        if (_timeFilter == '7d') return days <= 7;
+        if (_timeFilter == '90d') return days > 7 && days <= 90;
+        if (_timeFilter == '90d+') return days > 90;
+        return true;
+      }).toList();
+    }
+
+    return result;
   }
 
   Future<void> refresh(String userPlan) => _loadOpportunities(userPlan);

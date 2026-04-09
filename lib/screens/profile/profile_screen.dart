@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/responsive_layout.dart';
 import '../../widgets/glass_card.dart';
 import '../../widgets/primary_button.dart';
 import '../../providers/user_provider.dart';
@@ -34,6 +35,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.voidBg,
         elevation: 0,
+        centerTitle: ResponsiveLayout.isDesktop(context),
         title: Text(
           'Profile',
           style: GoogleFonts.spaceGrotesk(
@@ -50,57 +52,59 @@ class _ProfileScreenState extends State<ProfileScreen> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          return ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              _buildHeader(profile),
-              const SizedBox(height: 32),
-              _buildPlanCard(context, profile),
-              const SizedBox(height: 32),
-              _buildSectionTitle('SETTINGS'),
-              const SizedBox(height: 12),
-              _buildSettingTile(
-                icon: CupertinoIcons.bell,
-                title: 'Push Notifications',
-                trailing: Switch(
-                  value: profile.notificationsEnabled,
-                  onChanged: (v) => userProvider.updateNotificationsEnabled(v),
-                  activeTrackColor: AppColors.foxOrange.withValues(alpha: 0.3),
-                  activeThumbColor: AppColors.foxOrange,
+          return ResponsiveLayout.constrained(
+            ListView(
+              padding: const EdgeInsets.all(24),
+              children: [
+                _buildHeader(profile),
+                const SizedBox(height: 32),
+                _buildPlanCard(context, profile),
+                const SizedBox(height: 32),
+                _buildSectionTitle('SETTINGS'),
+                const SizedBox(height: 12),
+                _buildSettingTile(
+                  icon: CupertinoIcons.bell,
+                  title: 'Push Notifications',
+                  trailing: Switch(
+                    value: profile.notificationsEnabled,
+                    onChanged: (v) => userProvider.updateNotificationsEnabled(v),
+                    activeTrackColor: AppColors.foxOrange.withValues(alpha: 0.3),
+                    activeThumbColor: AppColors.foxOrange,
+                  ),
                 ),
-              ),
-              _buildSettingTile(
-                icon: CupertinoIcons.question_circle,
-                title: 'Support',
-                subtitle: 'info@zoomarketingdigital.com',
-                onTap: () => launchUrl(Uri.parse('mailto:info@zoomarketingdigital.com'), mode: LaunchMode.externalApplication),
-              ),
-              _buildSettingTile(
-                icon: CupertinoIcons.doc_text,
-                title: 'Privacy Policy',
-                onTap: () => launchUrl(Uri.parse('https://sites.google.com/view/privacypolicypolyfox/inicio'), mode: LaunchMode.externalApplication),
-              ),
-              _buildSettingTile(
-                icon: CupertinoIcons.shield,
-                title: 'Terms of Use (EULA)',
-                onTap: () => launchUrl(Uri.parse('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'), mode: LaunchMode.externalApplication),
-              ),
-              const SizedBox(height: 12),
-              _buildSettingTile(
-                icon: CupertinoIcons.trash,
-                title: 'Delete Account',
-                onTap: () => _showDeleteConfirmation(context),
-              ),
-              const SizedBox(height: 48),
-              TextButton(
-                onPressed: () => context.read<AuthProvider>().signOut(),
-                child: Text(
-                  'Log Out',
-                  style: GoogleFonts.spaceGrotesk(color: AppColors.accentRed, fontWeight: FontWeight.w700),
+                _buildSettingTile(
+                  icon: CupertinoIcons.question_circle,
+                  title: 'Support',
+                  subtitle: 'info@zoomarketingdigital.com',
+                  onTap: () => launchUrl(Uri.parse('mailto:info@zoomarketingdigital.com'), mode: LaunchMode.externalApplication),
                 ),
-              ),
-              const SizedBox(height: 40),
-            ],
+                _buildSettingTile(
+                  icon: CupertinoIcons.doc_text,
+                  title: 'Privacy Policy',
+                  onTap: () => launchUrl(Uri.parse('https://sites.google.com/view/privacypolicypolyfox/inicio'), mode: LaunchMode.externalApplication),
+                ),
+                _buildSettingTile(
+                  icon: CupertinoIcons.shield,
+                  title: 'Terms of Use (EULA)',
+                  onTap: () => launchUrl(Uri.parse('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'), mode: LaunchMode.externalApplication),
+                ),
+                const SizedBox(height: 12),
+                _buildSettingTile(
+                  icon: CupertinoIcons.trash,
+                  title: 'Delete Account',
+                  onTap: () => _showDeleteConfirmation(context),
+                ),
+                const SizedBox(height: 48),
+                TextButton(
+                  onPressed: () => context.read<AuthProvider>().signOut(),
+                  child: Text(
+                    'Log Out',
+                    style: GoogleFonts.spaceGrotesk(color: AppColors.accentRed, fontWeight: FontWeight.w700, fontSize: 16),
+                  ),
+                ),
+                const SizedBox(height: 40),
+              ],
+            ),
           );
         },
       ),

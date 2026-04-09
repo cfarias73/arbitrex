@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class Opportunity {
   final String id;
   final String type;
@@ -46,6 +48,41 @@ class Opportunity {
   );
 
   String get displayTitle => market?['title'] ?? marketId1;
+
+  /// Resolution/end date from the linked market or cross explanation JSON
+  DateTime? get endDate {
+    final marketEnd = market?['end_date'];
+    if (marketEnd != null && marketEnd is String && marketEnd.isNotEmpty) {
+      return DateTime.tryParse(marketEnd);
+    }
+    if (type == 'type_b' && explanation.startsWith('{')) {
+      try {
+        final decoded = jsonDecode(explanation) as Map<String, dynamic>;
+        final ed = decoded['end_date'];
+        if (ed != null && ed is String && ed.isNotEmpty) {
+          return DateTime.tryParse(ed);
+        }
+      } catch (_) {}
+    }
+    return null;
+  }
+
+  /// Days until resolution (null if unknown)
+  int? get daysToResolution {
+    final ed = endDate;
+    if (ed == null) return null;
+    final diff = ed.difference(DateTime.now().toUtc()).inDays;
+    return diff < 0 ? 0 : diff;
+  }
+
+  /// Time horizon label
+  String get horizonLabel {
+    final days = daysToResolution;
+    if (days == null) return 'Sin fecha';
+    if (days <= 7) return '≤ 7d';
+    if (days <= 30) return '≤ 30d';
+    return '+30d';
+  }
 
   String get timeAgo {
     final diff = DateTime.now().toUtc().difference(detectedAt);

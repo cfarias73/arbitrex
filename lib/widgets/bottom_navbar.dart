@@ -35,8 +35,12 @@ class CustomBottomNavBar extends StatelessWidget {
         unselectedLabelStyle: GoogleFonts.spaceGrotesk(fontSize: 10, fontWeight: FontWeight.w500),
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.bolt_fill, size: 20),
-            label: 'FEED',
+            icon: Icon(CupertinoIcons.house_fill, size: 20),
+            label: 'HOME',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(CupertinoIcons.bell_fill, size: 20),
+            label: 'ALERTS',
           ),
           BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.chart_bar_fill, size: 20),

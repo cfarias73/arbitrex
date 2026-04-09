@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/responsive_layout.dart';
 import '../../widgets/primary_button.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/analytics_service.dart';
@@ -64,130 +65,137 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 20),
-            Text(
-              'Create Account',
-              style: GoogleFonts.spaceGrotesk(
-                fontSize: 32,
-                fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Join the elite circle of arbitrage traders',
-              style: GoogleFonts.spaceGrotesk(
-                fontSize: 14,
-                color: AppColors.textSecondarySolid,
-              ),
-            ),
-            const SizedBox(height: 48),
-            if (!_registrationSuccess) ...[
-              _buildTextField(
-                label: 'Email',
-                hint: 'name@example.com',
-                controller: _emailController,
-              ),
-              const SizedBox(height: 16),
-              _buildTextField(
-                label: 'Password',
-                hint: '••••••••',
-                isPassword: true,
-                controller: _passwordController,
-              ),
-              const SizedBox(height: 16),
-              _buildTextField(
-                label: 'Confirm Password',
-                hint: '••••••••',
-                isPassword: true,
-                controller: _confirmPasswordController,
-              ),
-              if (authProvider.error != null) ...[
-                const SizedBox(height: 16),
+        child: Container(
+          constraints: BoxConstraints(
+            minHeight: MediaQuery.of(context).size.height - AppBar().preferredSize.height,
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: ResponsiveLayout.constrained(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 20),
                 Text(
-                  authProvider.error!,
-                  textAlign: TextAlign.center,
+                  'Create Account',
                   style: GoogleFonts.spaceGrotesk(
-                    color: AppColors.accentRed,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 32,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textPrimary,
                   ),
                 ),
-              ],
-              const SizedBox(height: 32),
-              PrimaryButton(
-                text: 'Sign Up',
-                isFullWidth: true,
-                isLoading: authProvider.isLoading,
-                onPressed: authProvider.isLoading ? null : () => _handleRegister(),
-              ),
-            ] else ...[
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.accentGreen.withValues(alpha: 0.5)),
+                const SizedBox(height: 8),
+                Text(
+                  'Join the elite circle of arbitrage traders',
+                  style: GoogleFonts.spaceGrotesk(
+                    fontSize: 14,
+                    color: AppColors.textSecondarySolid,
+                  ),
                 ),
-                child: Column(
-                  children: [
-                    const Icon(CupertinoIcons.mail_solid, color: AppColors.accentGreen, size: 48),
+                const SizedBox(height: 48),
+                if (!_registrationSuccess) ...[
+                  _buildTextField(
+                    label: 'Email',
+                    hint: 'name@example.com',
+                    controller: _emailController,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    label: 'Password',
+                    hint: '••••••••',
+                    isPassword: true,
+                    controller: _passwordController,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    label: 'Confirm Password',
+                    hint: '••••••••',
+                    isPassword: true,
+                    controller: _confirmPasswordController,
+                  ),
+                  if (authProvider.error != null) ...[
                     const SizedBox(height: 16),
                     Text(
-                      'Registration Successful!',
-                      style: GoogleFonts.spaceGrotesk(
-                        color: AppColors.textPrimary,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'We sent a confirmation link to your email. Please verify it to log in.',
+                      authProvider.error!,
                       textAlign: TextAlign.center,
                       style: GoogleFonts.spaceGrotesk(
-                        color: AppColors.textSecondarySolid,
-                        fontSize: 14,
+                        color: AppColors.accentRed,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
                       ),
-                    ),
-                    const SizedBox(height: 24),
-                    PrimaryButton(
-                      text: 'Back to Log In',
-                      onPressed: () => context.pop(),
-                      isFullWidth: true,
                     ),
                   ],
-                ),
-              ),
-            ],
-            const SizedBox(height: 24),
-            if (!_registrationSuccess)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Already have an account? ',
-                    style: GoogleFonts.spaceGrotesk(color: AppColors.textMuted, fontSize: 13),
+                  const SizedBox(height: 32),
+                  PrimaryButton(
+                    text: 'Sign Up',
+                    isFullWidth: true,
+                    isLoading: authProvider.isLoading,
+                    onPressed: authProvider.isLoading ? null : () => _handleRegister(),
                   ),
-                  GestureDetector(
-                    onTap: () => context.pop(),
-                    child: Text(
-                      'Log In',
-                      style: GoogleFonts.spaceGrotesk(
-                        color: AppColors.textSecondarySolid,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                      ),
+                ] else ...[
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.accentGreen.withValues(alpha: 0.5)),
+                    ),
+                    child: Column(
+                      children: [
+                        const Icon(CupertinoIcons.mail_solid, color: AppColors.accentGreen, size: 48),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Registration Successful!',
+                          style: GoogleFonts.spaceGrotesk(
+                            color: AppColors.textPrimary,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'We sent a confirmation link to your email. Please verify it to log in.',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.spaceGrotesk(
+                            color: AppColors.textSecondarySolid,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        PrimaryButton(
+                          text: 'Back to Log In',
+                          onPressed: () => context.pop(),
+                          isFullWidth: true,
+                        ),
+                      ],
                     ),
                   ),
                 ],
-              ),
-            const SizedBox(height: 40),
-          ],
+                const SizedBox(height: 24),
+                if (!_registrationSuccess)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Already have an account? ',
+                        style: GoogleFonts.spaceGrotesk(color: AppColors.textMuted, fontSize: 13),
+                      ),
+                      GestureDetector(
+                        onTap: () => context.pop(),
+                        child: Text(
+                          'Log In',
+                          style: GoogleFonts.spaceGrotesk(
+                            color: AppColors.textSecondarySolid,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                const SizedBox(height: 80),
+              ],
+            ),
+          ),
         ),
       ),
     );

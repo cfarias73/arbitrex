@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/responsive_layout.dart';
 import '../../widgets/stat_card.dart';
 import '../../providers/user_provider.dart';
 import '../../mock/mock_data.dart';
@@ -33,6 +34,7 @@ class _StatsScreenState extends State<StatsScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.voidBg,
         elevation: 0,
+        centerTitle: ResponsiveLayout.isDesktop(context),
         title: Text(
           'Analytics',
           style: GoogleFonts.spaceGrotesk(
@@ -44,29 +46,32 @@ class _StatsScreenState extends State<StatsScreen> {
       ),
       body: Consumer<UserProvider>(
         builder: (context, userProvider, child) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildPeriodSelector(userProvider.isPro),
-                const SizedBox(height: 24),
-                const Row(
-                  children: [
-                    Expanded(child: StatCard(label: 'TOTAL', value: '47', subtext: 'this week')),
-                    SizedBox(width: 12),
-                    Expanded(child: StatCard(label: 'MAGNITUDE', value: '6.2', subtext: 'avg pts')),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                const StatCard(label: 'CONVERGENCE', value: '2.4h', subtext: 'avg time to close'),
-                const SizedBox(height: 32),
-                _buildChartSection(),
-                const SizedBox(height: 32),
-                _buildTopCategories(),
-                const SizedBox(height: 40),
-              ],
+          return ResponsiveLayout.constrained(
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildPeriodSelector(userProvider.isPro),
+                  const SizedBox(height: 24),
+                  const Row(
+                    children: [
+                      Expanded(child: StatCard(label: 'TOTAL OPS', value: '47', subtext: 'this week')),
+                      SizedBox(width: 12),
+                      Expanded(child: StatCard(label: 'AVG DELTA', value: '6.2', subtext: 'points')),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  const StatCard(label: 'AVG CONVERGENCE', value: '2.4h', subtext: 'time to close'),
+                  const SizedBox(height: 40),
+                  _buildChartSection(),
+                  const SizedBox(height: 40),
+                  _buildTopCategories(),
+                  const SizedBox(height: 60),
+                ],
+              ),
             ),
+            width: ResponsiveLayout.maxFeedWidth,
           );
         },
       ),
@@ -83,11 +88,13 @@ class _StatsScreenState extends State<StatsScreen> {
       selected: {_period},
       onSelectionChanged: (Set<String> newSelection) {
         final val = newSelection.first;
-        if (val != '7d' && !isPro) {
-          context.push('/paywall');
-        } else {
-          setState(() => _period = val);
-        }
+        // if (val != '7d' && !isPro) {
+        //   context.push('/paywall');
+        // } else {
+        //   setState(() => _period = val);
+        // }
+        // FORCE PRO FOR UI REVIEW
+        setState(() => _period = val);
       },
       style: SegmentedButton.styleFrom(
         backgroundColor: AppColors.surface,

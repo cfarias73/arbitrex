@@ -106,6 +106,7 @@ async function fetchPolymarketMarkets() {
           buy_yes: buyYes,
           buy_no: buyNo,
           volume: parseFloat(m.volume || '0'),
+          end_date: m.endDate || event.endDate || null,
           updated_at: new Date().toISOString(),
           _event_id: event.id
         })
@@ -131,6 +132,7 @@ async function upsertMarkets(markets: any[]) {
       prob_yes: m.buy_yes,
       prob_no: m.buy_no,
       volume: m.volume,
+      end_date: m.end_date || null,
       updated_at: m.updated_at
     }))
     const { error } = await supabase.from('markets').upsert(chunk)
@@ -283,13 +285,11 @@ function detectTypeA_Hierarchy(markets: any[]) {
 // ─────────────────────────────────────────
 
 async function saveOpportunities(detected: any[]) {
-  // LIMPIEZA TOTAL: Borramos absolutamente todo para empezar de cero sin basura de 2025
+  // LIMPIEZA TOTAL DE TIPO A: Borramos exclusivamente type_a para no interferir con el motor Cross (type_b)
   const { error: delError } = await supabase
     .from('opportunities')
     .delete()
-    .neq('id', '00000000-0000-0000-0000-000000000000') // Borra todo de forma segura
-
-  if (delError) console.error('Delete all error:', delError.message)
+    .eq('type', 'type_a')
 
   if (detected.length === 0) return []
 

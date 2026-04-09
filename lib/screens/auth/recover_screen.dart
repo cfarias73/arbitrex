@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/responsive_layout.dart';
 import '../../widgets/primary_button.dart';
 import '../../providers/auth_provider.dart';
 
@@ -46,74 +47,82 @@ class _RecoverScreenState extends State<RecoverScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        centerTitle: ResponsiveLayout.isDesktop(context),
         leading: IconButton(
           icon: const Icon(CupertinoIcons.chevron_left, color: AppColors.textPrimary),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 20),
-            Text(
-              'RECOVER ACCESS',
-              style: GoogleFonts.spaceGrotesk(
-                color: AppColors.textPrimary,
-                fontSize: 28,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'We will send recovery instructions to your email.',
-              style: GoogleFonts.spaceGrotesk(
-                color: AppColors.textSecondarySolid,
-                fontSize: 14,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 48),
-            _buildTextField(
-              label: 'Email',
-              hint: 'name@example.com',
-              controller: _emailController,
-            ),
-            const SizedBox(height: 32),
-            if (!_sent)
-              PrimaryButton(
-                text: 'Send Instructions',
-                isFullWidth: true,
-                isLoading: _isLoading,
-                onPressed: _isLoading ? null : () => _handleRecover(),
-              )
-            else
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.accentGreen.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.accentGreen.withValues(alpha: 0.5)),
+      body: Center(
+        child: ResponsiveLayout.constrained(
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 20),
+                Text(
+                  'RECOVER ACCESS',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.spaceGrotesk(
+                    color: AppColors.textPrimary,
+                    fontSize: 32,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
-                child: Row(
-                  children: [
-                    const Icon(CupertinoIcons.checkmark_circle_fill, color: AppColors.accentGreen),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'If the email is registered, you will receive a link in a few minutes.',
-                        style: GoogleFonts.spaceGrotesk(
-                          color: AppColors.textPrimary,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                const SizedBox(height: 16),
+                Text(
+                  'We will send recovery instructions to your email if matches our database.',
+                  style: GoogleFonts.spaceGrotesk(
+                    color: AppColors.textSecondarySolid,
+                    fontSize: 16,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 60),
+                _buildTextField(
+                  label: 'Email',
+                  hint: 'name@example.com',
+                  controller: _emailController,
+                ),
+                const SizedBox(height: 48),
+                if (!_sent)
+                  PrimaryButton(
+                    text: 'Send Instructions',
+                    isFullWidth: true,
+                    isLoading: _isLoading,
+                    onPressed: _isLoading ? null : () => _handleRecover(),
+                  )
+                else
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: AppColors.accentGreen.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.accentGreen.withValues(alpha: 0.5)),
                     ),
-                  ],
-                ),
-              ),
-          ],
+                    child: Row(
+                      children: [
+                        const Icon(CupertinoIcons.checkmark_circle_fill, color: AppColors.accentGreen, size: 28),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Text(
+                            'Recovery instructions sent. Please check your inbox.',
+                            style: GoogleFonts.spaceGrotesk(
+                              color: AppColors.textPrimary,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                const SizedBox(height: 100),
+              ],
+            ),
+          ),
         ),
       ),
     );
